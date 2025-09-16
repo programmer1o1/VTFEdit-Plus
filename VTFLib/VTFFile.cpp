@@ -2080,9 +2080,9 @@ vlBool CVTFFile::GenerateMipmaps(vlUInt uiFace, vlUInt uiFrame, VTFMipmapFilter 
 	bool bOk = true;
 	for (vlUInt32 i = 1; i <= GetMipmapCount(); ++i)
 	{
-		bOk &= int(stbir_resize(
-			lpData, uiWidth, uiHeight, 0, lpWorkBuffer,
-			uiMipWidth, uiMipHeight, 0, stbir_pixel_layout(iNumChannels), iDataType, STBIR_EDGE_CLAMP,
+		bOk &= static_cast<bool>(stbir_resize(
+			lpData, static_cast<vlInt>(uiWidth), static_cast<vlInt>(uiHeight), 0, lpWorkBuffer,
+			static_cast<vlInt>(uiMipWidth), static_cast<vlInt>(uiMipHeight), 0, stbir_pixel_layout(iNumChannels), iDataType, STBIR_EDGE_CLAMP,
 			iMipFilter
 		));
 
@@ -2090,7 +2090,9 @@ vlBool CVTFFile::GenerateMipmaps(vlUInt uiFace, vlUInt uiFrame, VTFMipmapFilter 
 		{
 			vlUInt32 uiOffset = ComputeDataOffset(uiFrame, uiFace, 0, i, GetFormat());
 
-			bOk &= Convert(lpWorkBuffer, this->lpImageData + uiOffset, uiMipWidth, uiMipHeight, actualFormat, GetFormat());
+			bOk &= static_cast<bool>(Convert(
+				lpWorkBuffer, this->lpImageData + uiOffset, uiMipWidth, uiMipHeight, actualFormat, GetFormat()
+			));
 		}
 		else // Data can be set directly
 		{
