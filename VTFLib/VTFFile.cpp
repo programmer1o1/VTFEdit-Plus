@@ -401,6 +401,8 @@ static CMP_FORMAT GetCMPFormat( VTFImageFormat imageFormat, bool bDXT5GA )
 	// Swizzle is technically wrong for below but we reverse it in the shader!
 	case IMAGE_FORMAT_ATI2N:			return CMP_FORMAT_ATI2N;
 
+	case IMAGE_FORMAT_BC7:				return CMP_FORMAT_BC7;
+
 	default:							return CMP_FORMAT_Unknown;
 	}
 }
@@ -2078,7 +2080,7 @@ vlBool CVTFFile::GenerateMipmaps(vlUInt uiFace, vlUInt uiFrame, VTFMipmapFilter 
 	}
 
 	bool bOk = true;
-	for (vlUInt32 i = 1; i <= GetMipmapCount(); ++i)
+	for (vlUInt32 i = 1; i < GetMipmapCount(); ++i)
 	{
 		bOk &= static_cast<bool>(stbir_resize(
 			lpData, static_cast<vlInt>(uiWidth), static_cast<vlInt>(uiHeight), 0, lpWorkBuffer,
@@ -2646,6 +2648,7 @@ vlUInt CVTFFile::ComputeImageSize(vlUInt uiWidth, vlUInt uiHeight, vlUInt uiDept
 	{
 	case IMAGE_FORMAT_DXT1:
 	case IMAGE_FORMAT_DXT1_ONEBITALPHA:
+	case IMAGE_FORMAT_ATI1N:
 		if(uiWidth < 4 && uiWidth > 0)
 			uiWidth = 4;
 
@@ -2655,6 +2658,8 @@ vlUInt CVTFFile::ComputeImageSize(vlUInt uiWidth, vlUInt uiHeight, vlUInt uiDept
 		return ((uiWidth + 3) / 4) * ((uiHeight + 3) / 4) * 8 * uiDepth;
 	case IMAGE_FORMAT_DXT3:
 	case IMAGE_FORMAT_DXT5:
+	case IMAGE_FORMAT_ATI2N:
+	case IMAGE_FORMAT_BC7:
 		if(uiWidth < 4 && uiWidth > 0)
 			uiWidth = 4;
 
@@ -2841,12 +2846,12 @@ vlBool CVTFFile::ConvertToRGBA8888(vlByte *lpSource, vlByte *lpDest, vlUInt uiWi
 }
 
 //-----------------------------------------------------------------------------------------------------
-// DecompressDXTn(vlByte *src, vlByte *dst, vlUInt uiWidth, vlUInt uiHeight, VTFImageFormat SourceFormat)
+// DecompressBCn(vlByte *src, vlByte *dst, vlUInt uiWidth, vlUInt uiHeight, VTFImageFormat SourceFormat)
 //
-// Converts data from the DXT1 to RGBA8888 format. Data is read from *src
+// Converts data from the BCn to RGBA8888 format. Data is read from *src
 // and written to *dst. Width and height are needed to it knows how much data to process
 //-----------------------------------------------------------------------------------------------------
-vlBool CVTFFile::DecompressDXTn(vlByte *src, vlByte *dst, vlUInt uiWidth, vlUInt uiHeight, VTFImageFormat SourceFormat)
+vlBool CVTFFile::DecompressBCn(vlByte *src, vlByte *dst, vlUInt uiWidth, vlUInt uiHeight, VTFImageFormat SourceFormat)
 {
 	CMP_Texture srcTexture = {0};
 	srcTexture.dwSize     = sizeof( srcTexture );
@@ -2859,7 +2864,6 @@ vlBool CVTFFile::DecompressDXTn(vlByte *src, vlByte *dst, vlUInt uiWidth, vlUInt
 
 	CMP_CompressOptions options = {0};
 	options.dwSize        = sizeof(options);
-	options.fquality      = 1.0f;
 	options.dwnumThreads  = 0;
 	options.bDXT1UseAlpha = SourceFormat == ( IMAGE_FORMAT_DXT1_ONEBITALPHA | IMAGE_FORMAT_DXT1 );
 
@@ -2892,11 +2896,11 @@ vlBool CVTFFile::ConvertFromRGBA8888(vlByte *lpSource, vlByte *lpDest, vlUInt ui
 }
 
 //
-// CompressDXTn()
+// CompressBCn()
 // Compress input image data (lpSource) to output image data (lpDest) of format DestFormat
-// where DestFormat is of format DXTn.  Uses NVidia DXT library.
+// where DestFormat is of format BCn.  Uses Compressonator library.
 //
-vlBool CVTFFile::CompressDXTn(vlByte *lpSource, vlByte *lpDest, vlUInt uiWidth, vlUInt uiHeight, VTFImageFormat DestFormat, vlUInt nAlphaThreshold = 0)
+vlBool CVTFFile::CompressBCn(vlByte *lpSource, vlByte *lpDest, vlUInt uiWidth, vlUInt uiHeight, VTFImageFormat DestFormat)
 {
 	CMP_Texture srcTexture = {0};
 	srcTexture.dwSize     = sizeof( srcTexture );
@@ -2909,7 +2913,6 @@ vlBool CVTFFile::CompressDXTn(vlByte *lpSource, vlByte *lpDest, vlUInt uiWidth, 
 
 	CMP_CompressOptions options = {0};
 	options.dwSize        = sizeof(options);
-	options.fquality      = 1.0f;
 	options.dwnumThreads  = 0;
 	if ( DestFormat == IMAGE_FORMAT_DXT1 || DestFormat == IMAGE_FORMAT_DXT1_ONEBITALPHA ) {
 		options.bDXT1UseAlpha = true;
@@ -3073,7 +3076,7 @@ typedef struct tagSVTFImageConvertInfo
 	VTFImageFormat Format;
 } SVTFImageConvertInfo;
 
-static SVTFImageConvertInfo VTFImageConvertInfo[] =
+static SVTFImageConvertInfo VTFImageConvertInfo[IMAGE_FORMAT_COUNT] =
 {
 	{	 32,  4,  8,  8,  8,  8,	 0,	 1,	 2,	 3,	vlFalse,  vlTrue,	NULL,	NULL,		IMAGE_FORMAT_RGBA8888},
 	{	 32,  4,  8,  8,  8,  8,	 3,	 2,	 1,	 0, vlFalse,  vlTrue,	NULL,	NULL,		IMAGE_FORMAT_ABGR8888},
@@ -3105,12 +3108,9 @@ static SVTFImageConvertInfo VTFImageConvertInfo[] =
 	{ 	 32,  4, 32,  0,  0,  0,	 0,	-1,	-1,	-1, vlFalse, vlFalse,	NULL,	NULL,		IMAGE_FORMAT_R32F},
 	{ 	 96, 12, 32, 32, 32,  0,	 0,	 1,	 2,	-1, vlFalse, vlFalse,	NULL,	NULL,		IMAGE_FORMAT_RGB323232F},
 	{	128, 16, 32, 32, 32, 32,	 0,	 1,	 2,	 3, vlFalse, vlFalse,	NULL,	NULL,		IMAGE_FORMAT_RGBA32323232F},
-	{    16,  2, 16,  0,  0,  0,	 0,	-1,	-1,	-1, vlFalse,  vlTrue,	NULL,	NULL,		IMAGE_FORMAT_NV_DST16},
-	{	 24,  3, 24,  0,  0,  0,	 0,	-1,	-1,	-1, vlFalse,  vlTrue,	NULL,	NULL,		IMAGE_FORMAT_NV_DST24},
-	{	 32,  4,  0,  0,  0,  0,	-1,	-1,	-1,	-1, vlFalse, vlFalse,	NULL,	NULL,		IMAGE_FORMAT_NV_INTZ},
-	{	 24,  3,  0,  0,  0,  0,    -1,	-1,	-1,	-1, vlFalse, vlFalse,	NULL,	NULL,		IMAGE_FORMAT_NV_RAWZ},
-	{	 16,  2, 16,  0,  0,  0,	 0,	-1,	-1,	-1, vlFalse,  vlTrue,	NULL,	NULL,		IMAGE_FORMAT_ATI_DST16},
-	{	 24,  3, 24,  0,  0,  0,	 0,	-1,	-1,	-1, vlFalse,  vlTrue,	NULL,	NULL,		IMAGE_FORMAT_ATI_DST24},
+	{},
+	{},
+	{},
 	{	 32,  4,  0,  0,  0,  0,	-1,	-1,	-1,	-1, vlFalse, vlFalse,	NULL,	NULL,		IMAGE_FORMAT_NV_NULL},
 	{	  4,  0,  0,  0,  0,  0,	-1, -1, -1, -1,  vlTrue, vlFalse,	NULL,	NULL,		IMAGE_FORMAT_ATI1N},
 	{     8,  0,  0,  0,  0,  0,	-1, -1, -1, -1,  vlTrue, vlFalse,	NULL,	NULL,		IMAGE_FORMAT_ATI2N},
@@ -3444,7 +3444,10 @@ vlBool CVTFFile::Convert(vlByte *lpSource, vlByte *lpDest, vlUInt uiWidth, vlUIn
 		case IMAGE_FORMAT_DXT1_ONEBITALPHA:
 		case IMAGE_FORMAT_DXT3:
 		case IMAGE_FORMAT_DXT5:
-			bResult = CVTFFile::DecompressDXTn(lpSource, lpSourceRGBA, uiWidth, uiHeight, SourceFormat);
+		case IMAGE_FORMAT_ATI2N:
+		case IMAGE_FORMAT_ATI1N:
+		case IMAGE_FORMAT_BC7:
+			bResult = CVTFFile::DecompressBCn(lpSource, lpSourceRGBA, uiWidth, uiHeight, SourceFormat);
 			break;
 		default:
 			bResult = CVTFFile::Convert(lpSource, lpSourceRGBA, uiWidth, uiHeight, SourceFormat, IMAGE_FORMAT_RGBA8888);
@@ -3460,7 +3463,7 @@ vlBool CVTFFile::Convert(vlByte *lpSource, vlByte *lpDest, vlUInt uiWidth, vlUIn
 			case IMAGE_FORMAT_DXT1_ONEBITALPHA:
 			case IMAGE_FORMAT_DXT3:
 			case IMAGE_FORMAT_DXT5:
-				bResult = CVTFFile::CompressDXTn(lpSourceRGBA, lpDest, uiWidth, uiHeight, DestFormat, nAlphaThreshold);
+				bResult = CVTFFile::CompressBCn(lpSourceRGBA, lpDest, uiWidth, uiHeight, DestFormat);
 				break;
 			default:
 				bResult = CVTFFile::Convert(lpSourceRGBA, lpDest, uiWidth, uiHeight, IMAGE_FORMAT_RGBA8888, DestFormat);
