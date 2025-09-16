@@ -19,7 +19,7 @@
 #include "Compressonator.h"
 
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
-#include "stb_image_resize.h"
+#include "stb_image_resize2.h"
 
 using namespace VTFLib;
 using namespace std;
@@ -596,14 +596,10 @@ vlBool CVTFFile::Create(vlUInt uiWidth, vlUInt uiHeight, vlUInt uiFrames, vlUInt
 			}
 		}
 
-		bool dxtFormat = ( VTFCreateOptions.ImageFormat == IMAGE_FORMAT_DXT1 || VTFCreateOptions.ImageFormat == IMAGE_FORMAT_DXT3 || VTFCreateOptions.ImageFormat == IMAGE_FORMAT_DXT5 );
-		// Currently mipmaps are completely broken for DXT formats that use Multiple of Four resizing. Prevent it from making them.
-		bool allowMipmaps = !( dxtFormat && ( VTFCreateOptions.ResizeMethod == RESIZE_NEAREST_MULTIPLE4 ) );
-
-		vlBool setMipmaps = vlBool(allowMipmaps && VTFCreateOptions.bMipmaps == true);
+		//bool dxtFormat = ( VTFCreateOptions.ImageFormat == IMAGE_FORMAT_DXT1 || VTFCreateOptions.ImageFormat == IMAGE_FORMAT_DXT3 || VTFCreateOptions.ImageFormat == IMAGE_FORMAT_DXT5 );
 
 		// Create image (allocate and setup structures).
-		if(!this->Create(uiWidth, uiHeight, uiFrames, uiFaces + (VTFCreateOptions.bSphereMap && uiFaces == 6 ? 1 : 0), uiSlices, VTFCreateOptions.ImageFormat, VTFCreateOptions.bThumbnail, setMipmaps, vlFalse))
+		if(!this->Create(uiWidth, uiHeight, uiFrames, uiFaces + (VTFCreateOptions.bSphereMap && uiFaces == 6 ? 1 : 0), uiSlices, VTFCreateOptions.ImageFormat, VTFCreateOptions.bThumbnail, VTFCreateOptions.bMipmaps, vlFalse))
 		{
 			throw 0;
 		}
@@ -630,7 +626,7 @@ vlBool CVTFFile::Create(vlUInt uiWidth, vlUInt uiHeight, vlUInt uiFrames, vlUInt
 		}
 
 		// Generate mipmaps off source image.
-		if(setMipmaps && this->Header->MipCount != 1)
+		if (VTFCreateOptions.bMipmaps && this->Header->MipCount != 1)
 		{
 			auto temp = std::vector<vlByte>(this->Header->Width * this->Header->Height * 4);
 
@@ -652,10 +648,10 @@ vlBool CVTFFile::Create(vlUInt uiWidth, vlUInt uiHeight, vlUInt uiFrames, vlUInt
 							vlUShort usWidth  = max(1u, this->Header->Width  >> m);
 							vlUShort usHeight = max(1u, this->Header->Height >> m);
 
-							if (!stbir_resize_uint8_generic(
+							if (!stbir_resize(
 								pSource, this->Header->Width, this->Header->Height, 0,
 								temp.data(), usWidth, usHeight, 0,
-								4, 3, 0, STBIR_EDGE_CLAMP, stbir_filter(VTFCreateOptions.MipmapFilter), VTFCreateOptions.bSRGB ? STBIR_COLORSPACE_SRGB : STBIR_COLORSPACE_LINEAR, NULL))
+								STBIR_RGBA, VTFCreateOptions.bSRGB ? STBIR_TYPE_UINT8_SRGB : STBIR_TYPE_UINT8, STBIR_EDGE_CLAMP, stbir_filter(VTFCreateOptions.MipmapFilter)))
 							{
 								throw 0;
 							}
@@ -2472,7 +2468,7 @@ vlBool CVTFFile::GenerateSphereMap()
 				//get point on sphere
 				p.x = s;
 				p.y = t;
-				p.z = sqrt(0.25f - temp);
+				p.z = sqrtf(0.25f - temp);
 				VecScale(&p, 2.0f);
 
 				//ray from infinity (eyepoint) to surface
@@ -3578,10 +3574,10 @@ vlBool CVTFFile::Resize(vlByte *lpSourceRGBA8888, vlByte *lpDestRGBA8888, vlUInt
 {
 	assert(ResizeFilter >= 0 && ResizeFilter < MIPMAP_FILTER_COUNT);
 
-	if (!stbir_resize_uint8_generic(
+	if (!stbir_resize(
 		lpSourceRGBA8888, uiSourceWidth, uiSourceHeight, 0,
 		lpDestRGBA8888, uiDestWidth, uiDestHeight, 0,
-		4, 3, 0, STBIR_EDGE_CLAMP, stbir_filter(ResizeFilter), bSRGB ? STBIR_COLORSPACE_SRGB : STBIR_COLORSPACE_LINEAR, NULL))
+		STBIR_RGBA, bSRGB ? STBIR_TYPE_UINT8_SRGB : STBIR_TYPE_UINT8, STBIR_EDGE_CLAMP, stbir_filter(ResizeFilter)))
 	{
 		LastError.Set("Error resizing image.");
 		return vlFalse;
@@ -3638,7 +3634,7 @@ vlVoid CVTFFile::ComputeImageReflectivity(vlByte *lpImageDataRGBA8888, vlUInt ui
 
 	for(vlUInt i = 0; i < 256; i++)
 	{
-		sTable[i] = pow((vlSingle)i / 255.0f, 2.2f);
+		sTable[i] = powf((vlSingle)i / 255.0f, 2.2f);
 	}
 
 	//
