@@ -179,14 +179,15 @@ typedef enum tagVTFCubeMapFace
 
 typedef enum tagVTFMipmapFilter
 {
-	MIPMAP_FILTER_POINT = 0,
+	MIPMAP_FILTER_DEFAULT = 0,
 	MIPMAP_FILTER_BOX,
 	MIPMAP_FILTER_TRIANGLE,
-	MIPMAP_FILTER_QUADRATIC,
 	MIPMAP_FILTER_CUBIC,
 	MIPMAP_FILTER_CATROM,
 	MIPMAP_FILTER_MITCHELL,
+	MIPMAP_FILTER_POINT,
 	MIPMAP_FILTER_GAUSSIAN,
+	MIPMAP_FILTER_QUADRATIC,
 	MIPMAP_FILTER_SINC,
 	MIPMAP_FILTER_BESSEL,
 	MIPMAP_FILTER_HANNING,
@@ -846,8 +847,8 @@ namespace VTFLib
 		vlVoid *SetResourceData(vlUInt uiType, vlUInt uiSize, vlVoid *lpData);
 
 	public:
-		vlBool GenerateMipmaps(VTFMipmapFilter MipmapFilter = MIPMAP_FILTER_BOX);
-		vlBool GenerateMipmaps(vlUInt uiFace, vlUInt uiFrame, VTFMipmapFilter MipmapFilter = MIPMAP_FILTER_BOX);
+		vlBool GenerateMipmaps(VTFMipmapFilter MipmapFilter, vlBool bSRGB);
+		vlBool GenerateMipmaps(vlUInt uiFace, vlUInt uiFrame, VTFMipmapFilter MipmapFilter, vlBool bSRGB);
 
 		vlBool GenerateThumbnail(vlBool bSRGB);
 

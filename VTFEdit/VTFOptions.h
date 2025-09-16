@@ -333,9 +333,9 @@ namespace VTFEdit
 			// 
 			this->cboMipmapFilter->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->cboMipmapFilter->Font = ( gcnew System::Drawing::Font( L"Microsoft Sans Serif", 8 ) );
-			this->cboMipmapFilter->Items->AddRange( gcnew cli::array< System::Object ^  >( 6 ) {
+			this->cboMipmapFilter->Items->AddRange( gcnew cli::array< System::Object ^  >( 7 ) {
 				L"Default", L"Box", L"Triangle", L"Cubic",
-					L"Catmull", L"Mitchell"
+					L"Catmull", L"Mitchell", L"Point"	//, L"Gaussian", L"Quadratic", L"Sinc", L"Bessel", L"Hanning", L"Hamming", L"Blackman", L"Kaiser" // unimplementedW
 			} );
 			this->cboMipmapFilter->Location = System::Drawing::Point( 84, 39 );
 			this->cboMipmapFilter->Name = L"cboMipmapFilter";
@@ -660,9 +660,9 @@ namespace VTFEdit
 			// 
 			this->cboResizeFilter->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->cboResizeFilter->Font = ( gcnew System::Drawing::Font( L"Microsoft Sans Serif", 8 ) );
-			this->cboResizeFilter->Items->AddRange( gcnew cli::array< System::Object ^  >( 6 ) {
+			this->cboResizeFilter->Items->AddRange( gcnew cli::array< System::Object ^  >( 7 ) {
 				L"Default", L"Box", L"Triangle", L"Cubic",
-					L"Catmull", L"Mitchell"
+					L"Catmull", L"Mitchell", L"Point"	//, L"Gaussian", L"Quadratic", L"Sinc", L"Bessel", L"Hanning", L"Hamming", L"Blackman", L"Kaiser" // unimplemented
 			} );
 			this->cboResizeFilter->Location = System::Drawing::Point( 76, 57 );
 			this->cboResizeFilter->Name = L"cboResizeFilter";
