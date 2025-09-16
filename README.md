@@ -89,6 +89,88 @@ vtfcmd.exe -folder "C:\output\*.vtf" -output "C:\input" -exportformat "jpg"
 ```
 ## VTFEdit Reloaded Changelog
 <details>
+	
+  v2.1.7
+  - Warning and Notification Sounds are now enabled by default.
+  - Added button to Help menu to pull up latest GitHub version in browser.
+  - Fixed ordering of resize algorithms and exposed more options to user.
+  - Upgraded [stb_image_resize.h](https://github.com/nothings/stb/blob/master/deprecated/stb_image_resize.h) to [stb_image_resize2.h](https://github.com/nothings/stb/blob/master/stb_image_resize2.h), VTF creation is much faster now.
+  - Mipmaps are now generated with STB2.
+  - Upgraded Compressonator to fork [Yellow-Dog-Man/compressonator](https://github.com/Yellow-Dog-Man/compressonator).
+	
+  v2.1.6
+  - Fixed multi-line comments in VMTs not being allowed to save or load.
+	
+  v2.1.5
+  - Fixed reflectivity not being set correctly when saving a VTF.
+	
+  v2.1.4
+  - Fixed mipmap generation still attempting to make mipmaps when it was disabled.
+	
+  v2.1.3
+  - Disables mipmap generation with DXT formats that use Multiple of Four resizing as they do not work as expected.
+	
+  v2.1.2
+  - Fix alpha detection method for batch converting.
+	
+  v2.1.1
+  - Added an option to set a custom alpha background for images that have alpha. Both settings are in the Options tab at the top.
+  - Fix DXT1 with One Bit Alpha format not being imported correctly or being functional in source games.
+    - Instead, this format will be turned into DXT1 with the One Bit Alpha flag being enabled for it.
+  - Added a new Advanced option to set the alpha threshold when creating one bit textures.
+    - This will set pixels that have a lower numeric alpha value lower than this number to be 0, and any equal to or higher to be 255.
+    - This option is only relevant to DXT1 with One Bit Alpha.
+  - Added a parameter for VTFCmd for the alpha threshold when creating one bit textures.
+  - Removed HLLib as this is unused after the removal of WAD convert. This removes the requirement of needing msvcr100.dll to run the program.
+	
+  v2.1.0
+  - Fix batch create not setting the shader parameter to what you set for all vmts.
+  - Fix an image format placement in code.
+  - Fix One Bit Alpha flag not being kept on save.
+  - Moved all system sounds to only being heard when both warning popups and notification sounds are enabled.
+  - Changed the method that is used to determine whether an image should use Color or Alpha format.
+  - It will now iterate through all pixels in the image and check their opacity. Previously this only looked at certain attributes of the image.
+
+  v2.0.9
+  - Releases now include VTFCmd.exe (Untested.)
+  - Added a saved parameter for the zoom level of the VMT editor (Ctrl+MWheel changes the zoom level for this).
+  - Added a color panel that is used to view the representation of the reflectivity value and can be used to change that value when clicking on it.
+  - Added option to enable/disable notification sounds.
+  - Added option to enable/disable pop-up warnings when an error occurs or closing an opened file.
+  - Added a total percentage label to the Batch Convert window.
+  - Changed the default text when creating a new VMT to include a line for $basetexture.
+  - Changed the image position for VTF files to be centered on the middle panel and scaled to a more appropriate size by default.
+  - Optimized some functions.
+  - Removed the tabs in favor of adding a panel to the right, as a lot of redundant information was removed.
+  - Removed the file system ui elements.
+  - Removed WAD convert as it's broken. Don't know what happened to break it.
+  - Fixed some conditional statements.
+	
+  v2.0.8
+  - Fixed various issues with UI positioning and other functions not working.
+  - Added a few more check boxes for VMT Create dialog.
+	
+  v2.0.7
+  - Adjusted the Convert Folder/Convert WAD dialogs to allow for adjusting the created VMT file instead of defaulting to a bare-minimum file. There is a new button for this on the bottom-left next to the button that was used for only changing VTF options.
+  - Forgot to add VTF flags functionality to WAD convert, this is added now.
+	
+  v2.0.6
+  - Added an Edit Resources button for VTF files that are version 7.3 and above.
+  - Added a Flags tab to the VTF import dialog. This also works when using the convert folder option and setting them within the Options button on the bottom-left of the dialog.
+	
+  v2.0.5
+  - While importing an image, you can now select "Nearest Multiple of 4", which is the suggested bare-minimum for mipmaps to be generated properly.
+  - If you have an image opened, you can now change the version by selecting the new one in the dropdown box in the Info tab, then Save.
+  	- Keep in mind this will change the VTF size. So if you are using it for a spray decal, it could possibly go outside of the 512kb limitation when increasing the version.
+  - The program's settings file is now contained in the same location that the program is in, instead of your Roaming folder.
+  - The default version has also been changed to 7.4 as mostly commonly that will be the version used by source engine modders.
+  - The context menu's options for VTF files has been slightly changed for more clarity.
+  - The File menu has been slightly changed for more clarity and better positioning. Creating either VTF or VMT is now under the first option "Create New..."
+  - Pulled request by goodusername123, which excludes the sRGB flag from VTFs. This is hopefully a temporary measure.
+  - Reverted the syntax highlighter as it's terrible with performance and breaks some functionality. All related code is commented out if the issues can be solved later.
+  - Added a way to change the framerate for animated playback (in milliseconds).
+  - Fixed the import's resize filtering to use what you chose instead of being forced to use only one type of filter.
+  - Adjusted the About dialog to include @WereTech and @Sky-rym as authors.
 
   v2.0.4
   - Changed the UI to use a better version of the tool bar and added more buttons for ease of access.
