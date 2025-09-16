@@ -2071,6 +2071,8 @@ vlBool CVTFFile::GenerateMipmaps(vlUInt uiFace, vlUInt uiFrame, VTFMipmapFilter 
 		iMipFilter = STBIR_FILTER_CATMULLROM; break;
 	case MIPMAP_FILTER_MITCHELL:
 		iMipFilter = STBIR_FILTER_MITCHELL; break;
+	case STBIR_FILTER_POINT_SAMPLE:
+		iMipFilter = STBIR_FILTER_POINT_SAMPLE; break;
 	default:
 		iMipFilter = STBIR_FILTER_DEFAULT; break;
 	}
@@ -2078,12 +2080,11 @@ vlBool CVTFFile::GenerateMipmaps(vlUInt uiFace, vlUInt uiFrame, VTFMipmapFilter 
 	bool bOk = true;
 	for (vlUInt32 i = 1; i <= GetMipmapCount(); ++i)
 	{
-		bOk &= stbir_resize(
+		bOk &= int(stbir_resize(
 			lpData, uiWidth, uiHeight, 0, lpWorkBuffer,
-			uiMipWidth, uiMipHeight, 0, iDataType, iNumChannels,
-			formatInfo.uiAlphaBitsPerPixel > 0, STBIR_FLAG_ALPHA_PREMULTIPLIED, STBIR_EDGE_CLAMP, STBIR_EDGE_CLAMP,
-			iMipFilter, iMipFilter, bSRGB ? STBIR_COLORSPACE_SRGB : STBIR_COLORSPACE_LINEAR, nullptr
-		);
+			uiMipWidth, uiMipHeight, 0, stbir_pixel_layout(iNumChannels), iDataType, STBIR_EDGE_CLAMP,
+			iMipFilter
+		));
 
 		if (bConverted)
 		{
