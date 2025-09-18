@@ -121,6 +121,9 @@ copy "$(SolutionDir)..\..\thirdparty\bin\DevIL.dll" "$(TargetDir)"
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell">
+      <HintPath>..\packages\Microsoft-WindowsAPICodePack-Shell.1.1.5\lib\net472\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib">
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
@@ -235,6 +238,9 @@ copy "$(SolutionDir)..\..\thirdparty\bin\DevIL.dll" "$(TargetDir)"
     <Manifest Include="..\..\..\VTFEdit\windows_default.manifest" />
     <Manifest Include="..\..\..\VTFEdit\windows_dpiaware.manifest" />
     <Manifest Include="..\..\..\VTFEdit\windows_visualstyles.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

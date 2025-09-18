@@ -33,6 +33,7 @@ using namespace System::Collections;
 using namespace System::Windows::Forms;
 using namespace System::Data;
 using namespace System::Drawing;
+using namespace Microsoft::WindowsAPICodePack;
 
 namespace VTFEdit
 {
@@ -71,7 +72,7 @@ namespace VTFEdit
 	private: System::Windows::Forms::RichTextBox ^  txtLog;
 	private: System::Windows::Forms::Button ^  btnInputFolderBrowse;
 	private: System::Windows::Forms::TextBox ^  txtInputFolder;
-	private: System::Windows::Forms::FolderBrowserDialog ^  dlgOpenFolder;
+	private: Microsoft::WindowsAPICodePack::Dialogs::CommonOpenFileDialog^  dlgOpenFolder;
 	private: System::Windows::Forms::CheckBox ^  chkRecursive;
 	private: System::Windows::Forms::ToolTip ^  tipMain;
 	private: System::Windows::Forms::TextBox ^  txtToVTFFilter;
@@ -118,7 +119,7 @@ namespace VTFEdit
 			this->lblWADFile = (gcnew System::Windows::Forms::Label());
 			this->grpLog = (gcnew System::Windows::Forms::GroupBox());
 			this->txtLog = (gcnew System::Windows::Forms::RichTextBox());
-			this->dlgOpenFolder = (gcnew System::Windows::Forms::FolderBrowserDialog());
+			this->dlgOpenFolder = (gcnew Microsoft::WindowsAPICodePack::Dialogs::CommonOpenFileDialog());
 			this->tipMain = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->btnVMTOptions = (gcnew System::Windows::Forms::Button());
 			this->grpProgress->SuspendLayout();
@@ -389,7 +390,7 @@ namespace VTFEdit
 			// 
 			// dlgOpenFolder
 			// 
-			this->dlgOpenFolder->Description = L"Select a folder:";
+			this->dlgOpenFolder->IsFolderPicker = true;
 			// 
 			// tipMain
 			// 
@@ -561,19 +562,19 @@ namespace VTFEdit
 
 		private: System::Void btnInputFolderBrowse_Click(System::Object ^  sender, System::EventArgs ^  e)
 		{
-			this->dlgOpenFolder->SelectedPath = this->txtInputFolder->Text;
-			if(this->dlgOpenFolder->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+			this->dlgOpenFolder->InitialDirectory = this->txtInputFolder->Text;
+			if(this->dlgOpenFolder->ShowDialog() == Microsoft::WindowsAPICodePack::Dialogs::CommonFileDialogResult::Ok)
 			{
-				this->txtInputFolder->Text = this->dlgOpenFolder->SelectedPath;
+				this->txtInputFolder->Text = this->dlgOpenFolder->FileName;
 			}
 		}
 
 		private: System::Void btnOutputFolderBrowse_Click(System::Object ^  sender, System::EventArgs ^  e)
 		{
-			this->dlgOpenFolder->SelectedPath = this->txtOutputFolder->Text;
-			if(this->dlgOpenFolder->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+			this->dlgOpenFolder->InitialDirectory = this->txtOutputFolder->Text;
+			if(this->dlgOpenFolder->ShowDialog() == Microsoft::WindowsAPICodePack::Dialogs::CommonFileDialogResult::Ok)
 			{
-				this->txtOutputFolder->Text = this->dlgOpenFolder->SelectedPath;
+				this->txtOutputFolder->Text = this->dlgOpenFolder->FileName;
 			}
 		}
 
