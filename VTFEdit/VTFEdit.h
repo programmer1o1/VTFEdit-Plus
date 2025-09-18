@@ -34,6 +34,8 @@ using namespace System::Collections;
 using namespace System::Windows::Forms;
 using namespace System::Data;
 using namespace System::Drawing;
+using namespace Microsoft;
+using namespace Microsoft::WindowsAPICodePack::Dialogs;
 
 namespace VTFEdit
 {
@@ -165,7 +167,7 @@ namespace VTFEdit
 	private: System::Windows::Forms::PictureBox ^  picVTFFileBL;
 	private: System::Windows::Forms::PictureBox ^  picVTFFileBR;
 	private: System::Windows::Forms::MenuItem ^  btnTile;
-	private: System::Windows::Forms::FolderBrowserDialog ^  dlgExtractDirectoryItem;
+	private: Microsoft::WindowsAPICodePack::Dialogs::CommonOpenFileDialog ^  dlgExtractDirectoryItem;
 	private: System::Windows::Forms::MenuItem ^  btnMask;
 	private: System::Windows::Forms::Splitter ^  splSidebar;
 	private: System::Windows::Forms::StatusBar ^  barStatus;
@@ -386,7 +388,7 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 			this->dlgExportFile = ( gcnew System::Windows::Forms::SaveFileDialog() );
 			this->imgTool = ( gcnew System::Windows::Forms::ImageList(this->components) );
 			this->splSidebar = ( gcnew System::Windows::Forms::Splitter() );
-			this->dlgExtractDirectoryItem = ( gcnew System::Windows::Forms::FolderBrowserDialog() );
+			this->dlgExtractDirectoryItem = ( gcnew Microsoft::WindowsAPICodePack::Dialogs::CommonOpenFileDialog() );
 			this->tipMain = ( gcnew System::Windows::Forms::ToolTip(this->components) );
 			this->btnEditResources = ( gcnew System::Windows::Forms::Button() );
 			this->clrReflectivity = ( gcnew System::Windows::Forms::Panel() );
@@ -1521,7 +1523,8 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 			// 
 			// dlgExtractDirectoryItem
 			// 
-			this->dlgExtractDirectoryItem->Description = L"Extract directory item to:";
+			this->dlgExtractDirectoryItem->IsFolderPicker = true;
+			this->dlgExtractDirectoryItem->Title = L"Extract directory item to:";
 			// 
 			// tipMain
 			// 
@@ -4101,7 +4104,7 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 				ConfigFile->WriteLine(System::String::Concat("VTFEdit.Mask = ", this->btnMask->Checked.ToString()));
 				ConfigFile->WriteLine(System::String::Concat("VTFEdit.Tile = ", this->btnTile->Checked.ToString()));
 				ConfigFile->WriteLine(System::String::Concat("VTFEdit.AutoCreateVMTFile = ", this->btnAutoCreateVMTFile->Checked.ToString()));
-				ConfigFile->WriteLine(System::String::Concat("VTFEdit.ExtractDirectory = ", this->dlgExtractDirectoryItem->SelectedPath));
+				ConfigFile->WriteLine(System::String::Concat("VTFEdit.ExtractDirectory = ", this->dlgExtractDirectoryItem->FileName));
 
 				ConfigFile->WriteLine("");
 				ConfigFile->WriteLine("[Forms]");
@@ -4260,7 +4263,7 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 						}
 						else if(System::String::Compare(sArg, "VTFEdit.ExtractDirectory", true) == 0)
 						{
-							this->dlgExtractDirectoryItem->SelectedPath = sVal;;
+							this->dlgExtractDirectoryItem->InitialDirectory = sVal;;
 						}
 
 						else if(System::String::Compare(sArg, "Forms.VTFEdit.Location.X", true) == 0)

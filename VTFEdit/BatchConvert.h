@@ -33,7 +33,8 @@ using namespace System::Collections;
 using namespace System::Windows::Forms;
 using namespace System::Data;
 using namespace System::Drawing;
-using namespace Microsoft::WindowsAPICodePack;
+using namespace Microsoft;
+using namespace Microsoft::WindowsAPICodePack::Dialogs;
 
 namespace VTFEdit
 {
@@ -72,7 +73,7 @@ namespace VTFEdit
 	private: System::Windows::Forms::RichTextBox ^  txtLog;
 	private: System::Windows::Forms::Button ^  btnInputFolderBrowse;
 	private: System::Windows::Forms::TextBox ^  txtInputFolder;
-	private: Microsoft::WindowsAPICodePack::Dialogs::CommonOpenFileDialog^  dlgOpenFolder;
+	private: Microsoft::WindowsAPICodePack::Dialogs::CommonOpenFileDialog ^  dlgOpenFolder;
 	private: System::Windows::Forms::CheckBox ^  chkRecursive;
 	private: System::Windows::Forms::ToolTip ^  tipMain;
 	private: System::Windows::Forms::TextBox ^  txtToVTFFilter;
