@@ -94,7 +94,7 @@ vtfcmd.exe -folder "C:\output\*.vtf" -output "C:\input" -exportformat "jpg"
   - Warning and Notification Sounds are now enabled by default.
   - Added button to Help menu to pull up latest GitHub version in browser.
   - Fixed ordering of resize algorithms and exposed more options to user.
-  - Upgraded [stb_image_resize.h](https://github.com/nothings/stb/blob/master/deprecated/stb_image_resize.h) to [stb_image_resize2.h](https://github.com/nothings/stb/blob/master/stb_image_resize2.h), VTF creation is much faster now.
+  - Upgraded [stb_image_resize.h](https://github.com/nothings/stb/blob/master/deprecated/stb_image_resize.h) to [stb_image_resize2.h](https://github.com/nothings/stb/blob/master/stb_image_resize2.h), ~~VTF creation is much faster now.~~ I mistook something else changing import times, times are pretty much the same lmao.
   - Mipmaps are now generated with STB2.
   - Upgraded Compressonator to fork [Yellow-Dog-Man/compressonator](https://github.com/Yellow-Dog-Man/compressonator).
 	
