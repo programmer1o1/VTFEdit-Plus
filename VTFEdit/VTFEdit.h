@@ -964,7 +964,7 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 			// 
 			this->numFrame->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
-			this->numFrame->Location = System::Drawing::Point(68, 17);
+			this->numFrame->Location = System::Drawing::Point(68, 18);
 			this->numFrame->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 0, 0, 0, 0 });
 			this->numFrame->Name = L"numFrame";
 			this->numFrame->Size = System::Drawing::Size(144, 20);
@@ -974,7 +974,7 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 			// lblFrame
 			// 
 			this->lblFrame->BackColor = System::Drawing::Color::Transparent;
-			this->lblFrame->Location = System::Drawing::Point(7, 19);
+			this->lblFrame->Location = System::Drawing::Point(7, 20);
 			this->lblFrame->Name = L"lblFrame";
 			this->lblFrame->Size = System::Drawing::Size(47, 15);
 			this->lblFrame->TabIndex = 0;
