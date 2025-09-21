@@ -4104,7 +4104,12 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 				ConfigFile->WriteLine(System::String::Concat("VTFEdit.Mask = ", this->btnMask->Checked.ToString()));
 				ConfigFile->WriteLine(System::String::Concat("VTFEdit.Tile = ", this->btnTile->Checked.ToString()));
 				ConfigFile->WriteLine(System::String::Concat("VTFEdit.AutoCreateVMTFile = ", this->btnAutoCreateVMTFile->Checked.ToString()));
-				ConfigFile->WriteLine(System::String::Concat("VTFEdit.ExtractDirectory = ", this->dlgExtractDirectoryItem->FileName));
+				if (this->dlgExtractDirectoryItem->EnsureFileExists == true) {
+					ConfigFile->WriteLine(System::String::Concat("VTFEdit.ExtractDirectory = ", this->dlgExtractDirectoryItem->FileName));
+				}
+				else {
+					ConfigFile->WriteLine(System::String::Concat("VTFEdit.ExtractDirectory = ", L""));
+				}
 
 				ConfigFile->WriteLine("");
 				ConfigFile->WriteLine("[Forms]");
@@ -4303,7 +4308,7 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 						}
 						else if (System::String::Compare(sArg, "Forms.VTFEdit.VMTTextZoom", true) == 0)
 						{
-							this->iFormSaveVMTTextZoom = Convert::ToDouble(sVal);
+							this->iFormSaveVMTTextZoom = Convert::ToSingle(sVal);
 						}
 						else if (System::String::Compare(sArg, "Forms.VTFEdit.CustomAlphaBackground", true) == 0)
 						{
