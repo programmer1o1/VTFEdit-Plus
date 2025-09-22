@@ -324,16 +324,16 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 			this->grpImage = (gcnew System::Windows::Forms::GroupBox());
 			this->numFrameRate = (gcnew System::Windows::Forms::NumericUpDown());
 			this->label1 = (gcnew System::Windows::Forms::Label());
+			this->numMipmap = (gcnew System::Windows::Forms::NumericUpDown());
+			this->numSlice = (gcnew System::Windows::Forms::NumericUpDown());
+			this->numFace = (gcnew System::Windows::Forms::NumericUpDown());
+			this->numFrame = (gcnew System::Windows::Forms::NumericUpDown());
+			this->lblMipmap = (gcnew System::Windows::Forms::Label());
+			this->lblSlice = (gcnew System::Windows::Forms::Label());
+			this->lblFace = (gcnew System::Windows::Forms::Label());
+			this->lblFrame = (gcnew System::Windows::Forms::Label());
 			this->trkFrame = (gcnew System::Windows::Forms::TrackBar());
 			this->btnAnimate = (gcnew System::Windows::Forms::Button());
-			this->lblSlice = (gcnew System::Windows::Forms::Label());
-			this->numSlice = (gcnew System::Windows::Forms::NumericUpDown());
-			this->lblMipmap = (gcnew System::Windows::Forms::Label());
-			this->numMipmap = (gcnew System::Windows::Forms::NumericUpDown());
-			this->numFace = (gcnew System::Windows::Forms::NumericUpDown());
-			this->lblFace = (gcnew System::Windows::Forms::Label());
-			this->numFrame = (gcnew System::Windows::Forms::NumericUpDown());
-			this->lblFrame = (gcnew System::Windows::Forms::Label());
 			this->mnuHDR = (gcnew System::Windows::Forms::ContextMenu());
 			this->btnHDRReset = (gcnew System::Windows::Forms::MenuItem());
 			this->tmrAnimate = (gcnew System::Windows::Forms::Timer(this->components));
@@ -424,11 +424,11 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 			this->grpFlags->SuspendLayout();
 			this->grpImage->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numFrameRate))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trkFrame))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numSlice))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numMipmap))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numSlice))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numFace))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numFrame))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trkFrame))->BeginInit();
 			this->pnlMain->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picVTFFileBR))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picVTFFileBL))->BeginInit();
@@ -834,16 +834,16 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 				| System::Windows::Forms::AnchorStyles::Right));
 			this->grpImage->Controls->Add(this->numFrameRate);
 			this->grpImage->Controls->Add(this->label1);
+			this->grpImage->Controls->Add(this->numMipmap);
+			this->grpImage->Controls->Add(this->numSlice);
+			this->grpImage->Controls->Add(this->numFace);
+			this->grpImage->Controls->Add(this->numFrame);
+			this->grpImage->Controls->Add(this->lblMipmap);
+			this->grpImage->Controls->Add(this->lblSlice);
+			this->grpImage->Controls->Add(this->lblFace);
+			this->grpImage->Controls->Add(this->lblFrame);
 			this->grpImage->Controls->Add(this->trkFrame);
 			this->grpImage->Controls->Add(this->btnAnimate);
-			this->grpImage->Controls->Add(this->lblSlice);
-			this->grpImage->Controls->Add(this->numSlice);
-			this->grpImage->Controls->Add(this->lblMipmap);
-			this->grpImage->Controls->Add(this->numMipmap);
-			this->grpImage->Controls->Add(this->numFace);
-			this->grpImage->Controls->Add(this->lblFace);
-			this->grpImage->Controls->Add(this->numFrame);
-			this->grpImage->Controls->Add(this->lblFrame);
 			this->grpImage->FlatStyle = System::Windows::Forms::FlatStyle::System;
 			this->grpImage->Location = System::Drawing::Point(7, 7);
 			this->grpImage->Name = L"grpImage";
@@ -876,6 +876,86 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 			this->label1->TabIndex = 18;
 			this->label1->Text = L"Framerate: ";
 			// 
+			// numMipmap
+			// 
+			this->numMipmap->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
+				| System::Windows::Forms::AnchorStyles::Right));
+			this->numMipmap->Location = System::Drawing::Point(68, 75);
+			this->numMipmap->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 0, 0, 0, 0 });
+			this->numMipmap->Name = L"numMipmap";
+			this->numMipmap->Size = System::Drawing::Size(144, 20);
+			this->numMipmap->TabIndex = 7;
+			this->numMipmap->ValueChanged += gcnew System::EventHandler(this, &CVTFEdit::numVTFFile_ValueChanged);
+			// 
+			// numSlice
+			// 
+			this->numSlice->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
+				| System::Windows::Forms::AnchorStyles::Right));
+			this->numSlice->Location = System::Drawing::Point(68, 56);
+			this->numSlice->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 0, 0, 0, 0 });
+			this->numSlice->Name = L"numSlice";
+			this->numSlice->Size = System::Drawing::Size(144, 20);
+			this->numSlice->TabIndex = 5;
+			this->numSlice->ValueChanged += gcnew System::EventHandler(this, &CVTFEdit::numVTFFile_ValueChanged);
+			// 
+			// numFace
+			// 
+			this->numFace->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
+				| System::Windows::Forms::AnchorStyles::Right));
+			this->numFace->Location = System::Drawing::Point(68, 37);
+			this->numFace->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 0, 0, 0, 0 });
+			this->numFace->Name = L"numFace";
+			this->numFace->Size = System::Drawing::Size(144, 20);
+			this->numFace->TabIndex = 3;
+			this->numFace->ValueChanged += gcnew System::EventHandler(this, &CVTFEdit::numVTFFile_ValueChanged);
+			// 
+			// numFrame
+			// 
+			this->numFrame->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
+				| System::Windows::Forms::AnchorStyles::Right));
+			this->numFrame->Location = System::Drawing::Point(68, 18);
+			this->numFrame->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 0, 0, 0, 0 });
+			this->numFrame->Name = L"numFrame";
+			this->numFrame->Size = System::Drawing::Size(144, 20);
+			this->numFrame->TabIndex = 1;
+			this->numFrame->ValueChanged += gcnew System::EventHandler(this, &CVTFEdit::numVTFFile_ValueChanged);
+			// 
+			// lblMipmap
+			// 
+			this->lblMipmap->BackColor = System::Drawing::Color::Transparent;
+			this->lblMipmap->Location = System::Drawing::Point(7, 77);
+			this->lblMipmap->Name = L"lblMipmap";
+			this->lblMipmap->Size = System::Drawing::Size(47, 16);
+			this->lblMipmap->TabIndex = 6;
+			this->lblMipmap->Text = L"Mipmap:";
+			// 
+			// lblSlice
+			// 
+			this->lblSlice->BackColor = System::Drawing::Color::Transparent;
+			this->lblSlice->Location = System::Drawing::Point(7, 58);
+			this->lblSlice->Name = L"lblSlice";
+			this->lblSlice->Size = System::Drawing::Size(37, 15);
+			this->lblSlice->TabIndex = 4;
+			this->lblSlice->Text = L"Slice:";
+			// 
+			// lblFace
+			// 
+			this->lblFace->BackColor = System::Drawing::Color::Transparent;
+			this->lblFace->Location = System::Drawing::Point(7, 39);
+			this->lblFace->Name = L"lblFace";
+			this->lblFace->Size = System::Drawing::Size(47, 15);
+			this->lblFace->TabIndex = 2;
+			this->lblFace->Text = L"Face:";
+			// 
+			// lblFrame
+			// 
+			this->lblFrame->BackColor = System::Drawing::Color::Transparent;
+			this->lblFrame->Location = System::Drawing::Point(7, 20);
+			this->lblFrame->Name = L"lblFrame";
+			this->lblFrame->Size = System::Drawing::Size(47, 15);
+			this->lblFrame->TabIndex = 0;
+			this->lblFrame->Text = L"Frame:";
+			// 
 			// trkFrame
 			// 
 			this->trkFrame->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
@@ -899,86 +979,6 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 			this->btnAnimate->TabIndex = 14;
 			this->btnAnimate->Text = L"Play";
 			this->btnAnimate->Click += gcnew System::EventHandler(this, &CVTFEdit::btnAnimate_Click);
-			// 
-			// lblSlice
-			// 
-			this->lblSlice->BackColor = System::Drawing::Color::Transparent;
-			this->lblSlice->Location = System::Drawing::Point(7, 58);
-			this->lblSlice->Name = L"lblSlice";
-			this->lblSlice->Size = System::Drawing::Size(37, 15);
-			this->lblSlice->TabIndex = 4;
-			this->lblSlice->Text = L"Slice:";
-			// 
-			// numSlice
-			// 
-			this->numSlice->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
-				| System::Windows::Forms::AnchorStyles::Right));
-			this->numSlice->Location = System::Drawing::Point(68, 56);
-			this->numSlice->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 0, 0, 0, 0 });
-			this->numSlice->Name = L"numSlice";
-			this->numSlice->Size = System::Drawing::Size(144, 20);
-			this->numSlice->TabIndex = 5;
-			this->numSlice->ValueChanged += gcnew System::EventHandler(this, &CVTFEdit::numVTFFile_ValueChanged);
-			// 
-			// lblMipmap
-			// 
-			this->lblMipmap->BackColor = System::Drawing::Color::Transparent;
-			this->lblMipmap->Location = System::Drawing::Point(7, 77);
-			this->lblMipmap->Name = L"lblMipmap";
-			this->lblMipmap->Size = System::Drawing::Size(47, 16);
-			this->lblMipmap->TabIndex = 6;
-			this->lblMipmap->Text = L"Mipmap:";
-			// 
-			// numMipmap
-			// 
-			this->numMipmap->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
-				| System::Windows::Forms::AnchorStyles::Right));
-			this->numMipmap->Location = System::Drawing::Point(68, 75);
-			this->numMipmap->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 0, 0, 0, 0 });
-			this->numMipmap->Name = L"numMipmap";
-			this->numMipmap->Size = System::Drawing::Size(144, 20);
-			this->numMipmap->TabIndex = 7;
-			this->numMipmap->ValueChanged += gcnew System::EventHandler(this, &CVTFEdit::numVTFFile_ValueChanged);
-			// 
-			// numFace
-			// 
-			this->numFace->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
-				| System::Windows::Forms::AnchorStyles::Right));
-			this->numFace->Location = System::Drawing::Point(68, 37);
-			this->numFace->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 0, 0, 0, 0 });
-			this->numFace->Name = L"numFace";
-			this->numFace->Size = System::Drawing::Size(144, 20);
-			this->numFace->TabIndex = 3;
-			this->numFace->ValueChanged += gcnew System::EventHandler(this, &CVTFEdit::numVTFFile_ValueChanged);
-			// 
-			// lblFace
-			// 
-			this->lblFace->BackColor = System::Drawing::Color::Transparent;
-			this->lblFace->Location = System::Drawing::Point(7, 39);
-			this->lblFace->Name = L"lblFace";
-			this->lblFace->Size = System::Drawing::Size(47, 15);
-			this->lblFace->TabIndex = 2;
-			this->lblFace->Text = L"Face:";
-			// 
-			// numFrame
-			// 
-			this->numFrame->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
-				| System::Windows::Forms::AnchorStyles::Right));
-			this->numFrame->Location = System::Drawing::Point(68, 18);
-			this->numFrame->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 0, 0, 0, 0 });
-			this->numFrame->Name = L"numFrame";
-			this->numFrame->Size = System::Drawing::Size(144, 20);
-			this->numFrame->TabIndex = 1;
-			this->numFrame->ValueChanged += gcnew System::EventHandler(this, &CVTFEdit::numVTFFile_ValueChanged);
-			// 
-			// lblFrame
-			// 
-			this->lblFrame->BackColor = System::Drawing::Color::Transparent;
-			this->lblFrame->Location = System::Drawing::Point(7, 20);
-			this->lblFrame->Name = L"lblFrame";
-			this->lblFrame->Size = System::Drawing::Size(47, 15);
-			this->lblFrame->TabIndex = 0;
-			this->lblFrame->Text = L"Frame:";
 			// 
 			// mnuHDR
 			// 
@@ -1627,10 +1627,10 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 			// 
 			this->grpImageInfo->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
+			this->grpImageInfo->Controls->Add(this->trkHDRExposure);
 			this->grpImageInfo->Controls->Add(this->clrReflectivity);
 			this->grpImageInfo->Controls->Add(this->lblImageReflectivity);
 			this->grpImageInfo->Controls->Add(this->lblHDRKey);
-			this->grpImageInfo->Controls->Add(this->trkHDRExposure);
 			this->grpImageInfo->Controls->Add(this->numImageBumpmapScale);
 			this->grpImageInfo->Controls->Add(this->numImageStartFrame);
 			this->grpImageInfo->Controls->Add(this->lblImageReflectivityLabel);
@@ -1861,11 +1861,11 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 			this->grpImage->ResumeLayout(false);
 			this->grpImage->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numFrameRate))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trkFrame))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numSlice))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numMipmap))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numSlice))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numFace))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numFrame))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trkFrame))->EndInit();
 			this->pnlMain->ResumeLayout(false);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picVTFFileBR))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picVTFFileBL))->EndInit();
