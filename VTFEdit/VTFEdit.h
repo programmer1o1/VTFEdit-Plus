@@ -746,8 +746,8 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 			// 
 			// dlgOpenFile
 			// 
-			this->dlgOpenFile->Filter = L"Supported Files (*.vmt;*.vtf)|*.vmt;*.vtf|VMT Files (*.vmt)|*.vmt|VTF File (*.vtf"
-				L")|*.vtf";
+			this->dlgOpenFile->Filter = L"Supported Files (*.vmt;*.vtf;*.dat)|*.vmt;*.vtf;*.dat|VMT Files (*.vmt)|*.vmt|VTF File (*.vtf"
+				L")|*.vtf|DAT Files (*.dat)|*.dat";
 			this->dlgOpenFile->Title = L"Open File";
 			// 
 			// barStatus
@@ -1973,7 +1973,7 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 
 				if(System::IO::File::Exists(sFilePath))
 				{
-					if(sFilePath->ToLower()->EndsWith(".vtf") || sFilePath->ToLower()->EndsWith(".vmt"))
+					if(sFilePath->ToLower()->EndsWith(".vtf") || sFilePath->ToLower()->EndsWith(".vmt") || sFilePath->ToLower()->EndsWith(".dat"))
 					{
 						this->Open(sFilePath, false);
 					}
@@ -2897,7 +2897,7 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 			char cPath[512];
 			CUtility::StringToCharPointer(sFileName, cPath, 512);
 
-			if(sFileName->ToLower()->EndsWith(".vtf"))
+			if(sFileName->ToLower()->EndsWith(".vtf") || sFileName->ToLower()->EndsWith(".dat"))
 			{
 				VTFLib::CVTFFile *VTFFile = new VTFLib::CVTFFile();
 
@@ -4584,6 +4584,7 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 							lpFiles[0]->ToLower()->EndsWith(".jpg")   ||
 							lpFiles[0]->ToLower()->EndsWith(".jpeg")  ||
 							lpFiles[0]->ToLower()->EndsWith(".png")   ||
+							lpFiles[0]->ToLower()->EndsWith(".dat")   ||
 							lpFiles[0]->ToLower()->EndsWith(".tga")   )
 						 {
 							e->Effect = System::Windows::Forms::DragDropEffects::All;
