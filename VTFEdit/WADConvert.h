@@ -33,6 +33,8 @@ using namespace System::Collections;
 using namespace System::Windows::Forms;
 using namespace System::Data;
 using namespace System::Drawing;
+using namespace Microsoft;
+using namespace Microsoft::WindowsAPICodePack::Dialogs;
 
 namespace VTFEdit
 {
@@ -65,7 +67,7 @@ namespace VTFEdit
 	private: System::Windows::Forms::Label ^  lblOutputFolder;
 	private: System::Windows::Forms::ProgressBar ^  barProgress;
 	private: System::Windows::Forms::OpenFileDialog ^  dlgOpenWADFile;
-	private: System::Windows::Forms::FolderBrowserDialog ^  dlgOpenFolder;
+	private: Microsoft::WindowsAPICodePack::Dialogs::CommonOpenFileDialog ^  dlgOpenFolder;
 	private: System::Windows::Forms::Button ^  btnOptions;
 	private: System::Windows::Forms::GroupBox ^  grpLog;
 	private: System::Windows::Forms::RichTextBox ^  txtLog;
@@ -102,7 +104,7 @@ namespace VTFEdit
 			this->grpProgress = (gcnew System::Windows::Forms::GroupBox());
 			this->barProgress = (gcnew System::Windows::Forms::ProgressBar());
 			this->dlgOpenWADFile = (gcnew System::Windows::Forms::OpenFileDialog());
-			this->dlgOpenFolder = (gcnew System::Windows::Forms::FolderBrowserDialog());
+			this->dlgOpenFolder = (gcnew Microsoft::WindowsAPICodePack::Dialogs::CommonOpenFileDialog());
 			this->btnOptions = (gcnew System::Windows::Forms::Button());
 			this->grpLog = (gcnew System::Windows::Forms::GroupBox());
 			this->txtLog = (gcnew System::Windows::Forms::RichTextBox());
@@ -260,7 +262,7 @@ namespace VTFEdit
 			// 
 			// dlgOpenFolder
 			// 
-			this->dlgOpenFolder->Description = L"Select a folder:";
+			this->dlgOpenFolder->IsFolderPicker = true;
 			// 
 			// btnOptions
 			// 
@@ -410,10 +412,10 @@ namespace VTFEdit
 
 		private: System::Void btnOutputFolderBrowse_Click(System::Object ^  sender, System::EventArgs ^  e)
 		{
-			this->dlgOpenFolder->SelectedPath = this->txtOutputFolder->Text;
-			if(this->dlgOpenFolder->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+			this->dlgOpenFolder->InitialDirectory = this->txtOutputFolder->Text;
+			if(this->dlgOpenFolder->ShowDialog() == Microsoft::WindowsAPICodePack::Dialogs::CommonFileDialogResult::Ok)
 			{
-				this->txtOutputFolder->Text = this->dlgOpenFolder->SelectedPath;
+				this->txtOutputFolder->Text = this->dlgOpenFolder->FileName;
 			}
 		}
 
