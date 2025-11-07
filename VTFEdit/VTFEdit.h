@@ -2528,7 +2528,10 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 			this->lblImageFormat->Text = this->GetImageFormatString(VTFFile->GetFormat());
 			//this->lblImageStartFrame->Text = VTFFile->GetStartFrame().ToString();
 			this->numImageStartFrame->Maximum = VTFFile->GetFrameCount() - 1;
-			this->numImageStartFrame->Value = VTFFile->GetStartFrame() == 0xffff ? 0 : VTFFile->GetStartFrame();
+			if (this->numImageStartFrame->Maximum == 0)
+				this->numImageStartFrame->Value = 0;
+			else
+				this->numImageStartFrame->Value = VTFFile->GetStartFrame() == 0xffff ? 0 : VTFFile->GetStartFrame();
 			//this->lblImageBumpmapScale->Text = VTFFile->GetBumpmapScale().ToString("0.00");
 			this->numImageBumpmapScale->Value = System::Decimal(VTFFile->GetBumpmapScale());
 
