@@ -535,7 +535,7 @@ int main(int argc, char* argv[])
 			{
 				bHdr = vlTrue;
 			}
-			else if ( stricmp( argv[ i ], "-alphathreshold" ) )
+			else if ( stricmp( argv[ i ], "-alphathreshold" ) == 0 )
 			{
 				if(i + 1 < argc && sscanf(argv[++i], "%u", &uiTemp0) == 1)
 				{
