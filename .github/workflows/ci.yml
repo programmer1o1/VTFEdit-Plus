@@ -3,6 +3,7 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   core:
@@ -31,6 +32,19 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
 
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-${{ matrix.os }}
+          if-no-files-found: error
+          compression-level: 9
+          path: |
+            build/**/vtfcmd
+            build/**/vtfcmd.exe
+            build/**/vtfcmd.pdb
+            build/**/libvtflib.a
+            build/**/vtflib.lib
+
   qt-ubuntu:
     name: Qt GUI (ubuntu)
     runs-on: ubuntu-latest
@@ -51,3 +65,41 @@ jobs:
 
       - name: Build
         run: cmake --build build-qt --config Release
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vtfeditqt-ubuntu-latest
+          if-no-files-found: error
+          compression-level: 9
+          path: |
+            build-qt/**/vtfeditqt
+            build-qt/**/vtfeditqt.exe
+
+  winforms-windows:
+    name: WinForms GUI (windows)
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore sln/vs2019/VTFLib.sln
+
+      - name: Build VTFEdit Reloaded (WinForms)
+        run: msbuild sln/vs2019/VTFEdit/VTFEdit.vcxproj /m /p:Configuration=Release /p:Platform=x64
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vtfedit-winforms-windows-latest
+          if-no-files-found: error
+          compression-level: 9
+          path: |
+            sln/vs2019/Build/**
