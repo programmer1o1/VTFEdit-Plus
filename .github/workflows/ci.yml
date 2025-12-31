@@ -93,7 +93,7 @@ jobs:
         run: nuget restore sln/vs2019/VTFLib.sln
 
       - name: Build VTFEdit Reloaded (WinForms)
-        run: msbuild sln/vs2019/VTFEdit/VTFEdit.vcxproj /m /p:Configuration=Release /p:Platform=x64
+        run: msbuild sln/vs2019/VTFLib.sln /m /p:Configuration=Release /p:Platform=x64 /t:VTFEdit
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
