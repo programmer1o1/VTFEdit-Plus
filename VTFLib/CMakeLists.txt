@@ -52,11 +52,34 @@ if(VTFLIB_USE_COMPRESSONATOR)
         )
     endif()
 
-    find_library(COMPRESSONATOR_LIB NAMES Compressonator compressonator
-        PATHS ${_compressonator_search_paths}
-    )
-    if(COMPRESSONATOR_LIB)
-        target_link_libraries(vtflib PRIVATE ${COMPRESSONATOR_LIB})
+    if(WIN32)
+        # The bundled Windows libs are named `Compressonator_MT{d}.lib`.
+        find_library(COMPRESSONATOR_LIB_RELEASE NAMES Compressonator_MT Compressonator compressonator
+            PATHS ${_compressonator_search_paths}
+        )
+        find_library(COMPRESSONATOR_LIB_DEBUG NAMES Compressonator_MTd Compressonator compressonator
+            PATHS ${_compressonator_search_paths}
+        )
+        if(COMPRESSONATOR_LIB_RELEASE OR COMPRESSONATOR_LIB_DEBUG)
+            if(COMPRESSONATOR_LIB_RELEASE AND COMPRESSONATOR_LIB_DEBUG)
+                target_link_libraries(vtflib PRIVATE
+                    optimized ${COMPRESSONATOR_LIB_RELEASE}
+                    debug ${COMPRESSONATOR_LIB_DEBUG}
+                )
+            else()
+                target_link_libraries(vtflib PRIVATE ${COMPRESSONATOR_LIB_RELEASE} ${COMPRESSONATOR_LIB_DEBUG})
+            endif()
+        endif()
+    else()
+        find_library(COMPRESSONATOR_LIB NAMES Compressonator compressonator
+            PATHS ${_compressonator_search_paths}
+        )
+        if(COMPRESSONATOR_LIB)
+            target_link_libraries(vtflib PRIVATE ${COMPRESSONATOR_LIB})
+        endif()
+    endif()
+
+    if(COMPRESSONATOR_LIB OR COMPRESSONATOR_LIB_RELEASE OR COMPRESSONATOR_LIB_DEBUG)
         # Link all CMP_Core variants (base, SSE, AVX)
         find_library(CMP_CORE_LIB NAMES CMP_Core
             PATHS ${_compressonator_search_paths}

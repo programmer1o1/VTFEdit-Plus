@@ -2215,7 +2215,19 @@ private: System::Windows::Forms::MenuItem ^btnOptions;
 
 			// Decode image data.
 			vlSetFloat(VTFLIB_FP16_HDR_EXPOSURE, sHDRExposure);
-			this->VTFFile->ConvertToRGBA8888(this->VTFFile->GetData(uiFrame, uiFace, uiSlice, uiMipmap), lpBuffer, uiWidth, uiHeight, this->VTFFile->GetFormat());
+			if(!this->VTFFile->ConvertToRGBA8888(this->VTFFile->GetData(uiFrame, uiFace, uiSlice, uiMipmap), lpBuffer, uiWidth, uiHeight, this->VTFFile->GetFormat()))
+			{
+				delete []lpBuffer;
+
+				if (bNotificationSounds)
+				{
+					System::Media::SystemSounds::Asterisk->Play();
+				}
+				MessageBox::Show(System::String::Concat("Error converting VTF texture:\n\n", gcnew System::String(vlGetLastError())), Application::ProductName, MessageBoxButtons::OK, MessageBoxIcon::Error);
+
+				bUpdating = false;
+				return;
+			}
 
 			float fInverseImageScale = 1.0f / this->fImageScale;
 
