@@ -88,7 +88,7 @@ SVTFCreateOptions createOptionsFromSettings() {
 WadConvertDialog::WadConvertDialog(QWidget *parent) : QDialog(parent) {
     setWindowTitle("WAD Convert");
     setModal(true);
-    resize(760, 560);
+    resize(720, 520);
 
     createOptions_ = createOptionsFromSettings();
     {
@@ -242,9 +242,14 @@ void WadConvertDialog::convert() {
         QCoreApplication::processEvents();
 
         vlUInt id = 0;
-        if(!vlCreateImage(&id) || !vlBindImage(id)) {
-            appendLog(QString("%1: VTFLib create/bind failed: %2").arg(baseName, QString::fromUtf8(vlGetLastError())));
-            if(id) vlDeleteImage(id);
+        if(!vlCreateImage(&id)) {
+            appendLog(QString("%1: VTFLib create failed: %2").arg(baseName, QString::fromUtf8(vlGetLastError())));
+            ++failCount;
+            continue;
+        }
+        if(!vlBindImage(id)) {
+            appendLog(QString("%1: VTFLib bind failed: %2").arg(baseName, QString::fromUtf8(vlGetLastError())));
+            vlDeleteImage(id);
             ++failCount;
             continue;
         }

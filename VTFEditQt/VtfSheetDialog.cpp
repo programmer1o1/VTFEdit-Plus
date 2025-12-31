@@ -42,7 +42,7 @@ VtfSheetDialog::VtfSheetDialog(const QByteArray &sheetBytes, QWidget *parent)
     : QDialog(parent) {
     setWindowTitle("Edit Sheet Resource");
     setModal(true);
-    resize(1100, 700);
+    resize(980, 640);
 
     {
         QString err;

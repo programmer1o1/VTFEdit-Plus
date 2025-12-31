@@ -30,6 +30,7 @@ target_include_directories(vtflib
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
+target_compile_definitions(vtflib PUBLIC VTFLIB_STATIC)
 
 set_target_properties(vtflib PROPERTIES
     POSITION_INDEPENDENT_CODE ON

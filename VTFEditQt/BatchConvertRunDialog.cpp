@@ -69,9 +69,13 @@ bool applyRequestedResourcesToVtf(const BatchConvertRunDialog::Job &job, const Q
     if(!job.createLodResource && !job.createInformationResource) return true;
 
     vlUInt id = 0;
-    if(!vlCreateImage(&id) || !vlBindImage(id)) {
+    if(!vlCreateImage(&id)) {
         if(error) *error = QString::fromUtf8(vlGetLastError());
-        if(id) vlDeleteImage(id);
+        return false;
+    }
+    if(!vlBindImage(id)) {
+        if(error) *error = QString::fromUtf8(vlGetLastError());
+        vlDeleteImage(id);
         return false;
     }
 
@@ -121,7 +125,7 @@ bool applyRequestedResourcesToVtf(const BatchConvertRunDialog::Job &job, const Q
 BatchConvertRunDialog::BatchConvertRunDialog(Job job, QWidget *parent) : QDialog(parent), job_(std::move(job)) {
     setWindowTitle("Batch Convert");
     setModal(true);
-    resize(980, 620);
+    resize(940, 580);
 
     auto *layout = new QGridLayout(this);
 

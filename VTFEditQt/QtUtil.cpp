@@ -88,9 +88,13 @@ bool createVtfFromRgbaAndSave(const QImage &rgba, const SVTFCreateOptions &opts,
     if(rgba8888.format() != QImage::Format_RGBA8888) rgba8888 = rgba8888.convertToFormat(QImage::Format_RGBA8888);
 
     vlUInt id = 0;
-    if(!vlCreateImage(&id) || !vlBindImage(id)) {
+    if(!vlCreateImage(&id)) {
         if(error) *error = QString::fromUtf8(vlGetLastError());
-        if(id) vlDeleteImage(id);
+        return false;
+    }
+    if(!vlBindImage(id)) {
+        if(error) *error = QString::fromUtf8(vlGetLastError());
+        vlDeleteImage(id);
         return false;
     }
 

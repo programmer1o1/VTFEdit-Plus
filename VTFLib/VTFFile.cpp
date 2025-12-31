@@ -193,25 +193,46 @@ vlBool CVTFFile::Create(vlUInt uiWidth, vlUInt uiHeight, vlUInt uiFrames, vlUInt
 	// Check options.
 	//
 
-	// Check if width is valid (power of 2 and fits in a short).
-	if(!this->IsMultipleOfFour(uiWidth) || uiWidth > 0xffff)
-	{
-		// 2 is valid since it's a power of 2, but I don't want to do more than this.
-		if (uiWidth == 0 || uiWidth != 2)
+	auto isBlockCompressed = [](VTFImageFormat fmt) -> vlBool {
+		switch(fmt)
 		{
-			LastError.SetFormatted("Invalid image width %u. Width must be a power of two or multiple of four.", uiWidth);
+		case IMAGE_FORMAT_DXT1:
+		case IMAGE_FORMAT_DXT1_ONEBITALPHA:
+		case IMAGE_FORMAT_DXT3:
+		case IMAGE_FORMAT_DXT5:
+		case IMAGE_FORMAT_ATI1N:
+		case IMAGE_FORMAT_ATI2N:
+			return vlTrue;
+		default:
+			return vlFalse;
 		}
+	};
+
+	// Dimensions must be non-zero and fit in the VTF header fields.
+	if(uiWidth == 0 || uiWidth > 0xffff)
+	{
+		LastError.SetFormatted("Invalid image width %u.", uiWidth);
+		return vlFalse;
+	}
+	if(uiHeight == 0 || uiHeight > 0xffff)
+	{
+		LastError.SetFormatted("Invalid image height %u.", uiHeight);
 		return vlFalse;
 	}
 
-	// Check if height is valid (power of 2 and fits in a short).
-	if(!this->IsMultipleOfFour(uiHeight) || uiHeight > 0xffff)
+	// Block-compressed formats operate on 4x4 blocks.
+	if(isBlockCompressed(ImageFormat))
 	{
-		if (uiHeight == 0 || uiHeight == 2)
+		if(uiWidth < 4 || uiHeight < 4)
 		{
-			LastError.SetFormatted("Invalid image height %u. Height must be a power of two or multiple of four.", uiHeight);
+			LastError.SetFormatted("Invalid image dimensions %u x %u for block-compressed formats (minimum 4 x 4).", uiWidth, uiHeight);
+			return vlFalse;
 		}
-		return vlFalse;
+		if((uiWidth % 4) != 0 || (uiHeight % 4) != 0)
+		{
+			LastError.SetFormatted("Invalid image dimensions %u x %u for block-compressed formats (must be a multiple of four).", uiWidth, uiHeight);
+			return vlFalse;
+		}
 	}
 
 	// Check if depth is valid (power of 2 and fits in a short).
@@ -762,6 +783,11 @@ vlBool CVTFFile::Create(vlUInt uiWidth, vlUInt uiHeight, vlUInt uiFrames, vlUInt
 	}
 	catch(...)
 	{
+		if(LastError.Get()[0] == '\0')
+		{
+			LastError.Set("Unknown error while creating image.");
+		}
+
 		if(lpNewImageDataRGBA8888 != 0)
 		{
 			for(vlUInt i = 0; i < uiCount; i++)

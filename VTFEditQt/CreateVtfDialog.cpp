@@ -101,7 +101,8 @@ CreateVtfDialog::CreateVtfDialog(QWidget *parent) : QDialog(parent) {
         alphaFormat_->addItem(QString::fromUtf8(item.label), static_cast<int>(item.format));
     }
     {
-        const int idx = alphaFormat_->findData(static_cast<int>(IMAGE_FORMAT_DXT5));
+        const auto preferred = vtflibCanEncode(IMAGE_FORMAT_DXT5) ? IMAGE_FORMAT_DXT5 : IMAGE_FORMAT_RGBA8888;
+        const int idx = alphaFormat_->findData(static_cast<int>(preferred));
         alphaFormat_->setCurrentIndex(idx >= 0 ? idx : 0);
     }
     alphaFormat_->setEnabled(false);
@@ -269,7 +270,9 @@ CreateVtfDialog::CreateVtfDialog(QWidget *parent) : QDialog(parent) {
         QSettings s;
         const int texType = s.value("options/create/textureType", static_cast<int>(TextureType::Animated)).toInt();
         const int normalFmt = s.value("options/create/normalFormat", static_cast<int>(format_->currentData().toInt())).toInt();
-        const int alphaFmt = s.value("options/create/alphaFormat", static_cast<int>(IMAGE_FORMAT_DXT5)).toInt();
+        const int alphaFmt = s.value("options/create/alphaFormat",
+                                     static_cast<int>(vtflibCanEncode(IMAGE_FORMAT_DXT5) ? IMAGE_FORMAT_DXT5 : IMAGE_FORMAT_RGBA8888))
+                                 .toInt();
         const bool useAlpha = s.value("options/create/useAlphaFormat", false).toBool();
         const int verMinor = s.value("options/create/versionMinor", 5).toInt();
         const bool mip = s.value("options/create/mipmaps", true).toBool();
@@ -280,7 +283,7 @@ CreateVtfDialog::CreateVtfDialog(QWidget *parent) : QDialog(parent) {
         const bool srgb = s.value("options/create/srgb", false).toBool();
         const bool gammaOn = s.value("options/create/gammaEnabled", false).toBool();
         const double gammaVal = s.value("options/create/gammaValue", 2.2).toDouble();
-        const bool resizeEnabled = s.value("options/create/resizeEnabled", false).toBool();
+        const bool resizeEnabled = s.contains("options/create/resizeEnabled") ? s.value("options/create/resizeEnabled").toBool() : true;
         const int resizeMethod = resizeEnabled ? s.value("options/create/resizeMethod", static_cast<int>(RESIZE_NEAREST_POWER2)).toInt()
                                                : static_cast<int>(RESIZE_COUNT);
         const int resizeFilter = s.value("options/create/resizeFilter", mipFilter).toInt();

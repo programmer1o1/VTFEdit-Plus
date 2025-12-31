@@ -86,7 +86,7 @@ static int comboIndexForData(QComboBox *combo, int value, int fallbackIndex = 0)
 OptionsDialog::OptionsDialog(QWidget *parent) : QDialog(parent) {
     setWindowTitle("Options");
     setModal(true);
-    resize(760, 640);
+    resize(720, 580);
 
     auto *root = new QVBoxLayout(this);
 
@@ -120,7 +120,7 @@ OptionsDialog::OptionsDialog(QWidget *parent) : QDialog(parent) {
         layout->addRow("", useAlphaFormat_);
 
         alphaFormat_ = new QComboBox(tab);
-        populateFormatCombo(alphaFormat_, IMAGE_FORMAT_DXT5);
+        populateFormatCombo(alphaFormat_, vtflibCanEncode(IMAGE_FORMAT_DXT5) ? IMAGE_FORMAT_DXT5 : IMAGE_FORMAT_RGBA8888);
         layout->addRow("Alpha format:", alphaFormat_);
 
         mipmaps_ = new QCheckBox("Generate mipmaps", tab);
@@ -298,7 +298,7 @@ void OptionsDialog::resetToDefaults() {
     textureType_->setCurrentIndex(0);
     populateFormatCombo(normalFormat_, vtflibCanEncode(IMAGE_FORMAT_DXT5) ? IMAGE_FORMAT_DXT5 : IMAGE_FORMAT_RGBA8888);
     useAlphaFormat_->setChecked(false);
-    populateFormatCombo(alphaFormat_, IMAGE_FORMAT_DXT5);
+    populateFormatCombo(alphaFormat_, vtflibCanEncode(IMAGE_FORMAT_DXT5) ? IMAGE_FORMAT_DXT5 : IMAGE_FORMAT_RGBA8888);
 
     mipmaps_->setChecked(true);
     mipmapFilter_->setCurrentIndex(comboIndexForData(mipmapFilter_, static_cast<int>(MIPMAP_FILTER_DEFAULT), 0));
@@ -310,8 +310,8 @@ void OptionsDialog::resetToDefaults() {
     gammaCorrection_->setChecked(false);
     gammaValue_->setValue(2.2);
 
-    resizeEnabled_->setChecked(false);
-    resizeMethod_->setCurrentIndex(0);
+    resizeEnabled_->setChecked(true);
+    resizeMethod_->setCurrentIndex(comboIndexForData(resizeMethod_, static_cast<int>(RESIZE_NEAREST_POWER2), 0));
     resizeFilter_->setCurrentIndex(comboIndexForData(resizeFilter_, static_cast<int>(MIPMAP_FILTER_DEFAULT), 0));
     resizeClamp_->setChecked(false);
     resizeClampW_->setValue(1024);
@@ -368,7 +368,8 @@ void OptionsDialog::loadFromSettings() {
     textureType_->setCurrentIndex(std::clamp(s.value("options/create/textureType", 0).toInt(), 0, 2));
 
     populateFormatCombo(normalFormat_, static_cast<VTFImageFormat>(s.value("options/create/normalFormat", static_cast<int>(normalFormat_->currentData().toInt())).toInt()));
-    const int alphaFmt = s.value("options/create/alphaFormat", static_cast<int>(IMAGE_FORMAT_DXT5)).toInt();
+    const int alphaFmt =
+        s.value("options/create/alphaFormat", static_cast<int>(vtflibCanEncode(IMAGE_FORMAT_DXT5) ? IMAGE_FORMAT_DXT5 : IMAGE_FORMAT_RGBA8888)).toInt();
     alphaFormat_->setCurrentIndex(comboIndexForData(alphaFormat_, alphaFmt, 0));
 
     useAlphaFormat_->setChecked(s.value("options/create/useAlphaFormat", false).toBool());
@@ -386,7 +387,7 @@ void OptionsDialog::loadFromSettings() {
     gammaCorrection_->setChecked(s.value("options/create/gammaEnabled", false).toBool());
     gammaValue_->setValue(std::clamp(s.value("options/create/gammaValue", 2.2).toDouble(), 0.1, 5.0));
 
-    resizeEnabled_->setChecked(s.value("options/create/resizeEnabled", false).toBool());
+    resizeEnabled_->setChecked(s.contains("options/create/resizeEnabled") ? s.value("options/create/resizeEnabled").toBool() : true);
     resizeMethod_->setCurrentIndex(comboIndexForData(resizeMethod_, s.value("options/create/resizeMethod", static_cast<int>(RESIZE_NEAREST_POWER2)).toInt(), 0));
     resizeFilter_->setCurrentIndex(comboIndexForData(resizeFilter_, s.value("options/create/resizeFilter", static_cast<int>(MIPMAP_FILTER_DEFAULT)).toInt(), 0));
     resizeClamp_->setChecked(s.value("options/create/resizeClamp", false).toBool());

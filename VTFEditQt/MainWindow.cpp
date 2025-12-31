@@ -55,6 +55,8 @@
 #include <QToolBar>
 #include <QToolButton>
 #include <QSlider>
+#include <QSignalBlocker>
+#include <QScreen>
 #include <QScrollArea>
 #include <QSizeF>
 #include <QStatusBar>
@@ -103,6 +105,16 @@ QPointF localPosF(const QMouseEvent *e) {
     return e->position();
 #else
     return e->localPos();
+#endif
+}
+
+bool labelHasPixmap(const QLabel *label) {
+    if(!label) return false;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return !label->pixmap(Qt::ReturnByValue).isNull();
+#else
+    const QPixmap *pm = label->pixmap();
+    return pm && !pm->isNull();
 #endif
 }
 
@@ -985,7 +997,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         connect(globalOptions, &QAction::triggered, this, [this] {
             OptionsDialog dlg(this);
             if(dlg.exec() != QDialog::Accepted) return;
-            if(imageId_ != 0) {
+            if(imageId_ != kInvalidImageId) {
                 renderSelection();
                 updateCubemapPreview();
             }
@@ -1031,7 +1043,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         showThumbnail_ = checked;
         if(hdrTonemapCombo_) {
             bool enable = false;
-            if(imageId_ != 0) {
+            if(imageId_ != kInvalidImageId) {
                 vlBindImage(imageId_);
                 enable = hdrTonemapEnabled_ && !checked && vtfFormatIsHdr(vlImageGetFormat());
             }
@@ -1051,7 +1063,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         hdrTonemapEnabled_ = checked;
         if(hdrTonemapCombo_) {
             bool enable = false;
-            if(imageId_ != 0) {
+            if(imageId_ != kInvalidImageId) {
                 vlBindImage(imageId_);
                 enable = checked && vtfFormatIsHdr(vlImageGetFormat()) && !showThumbnail_;
             }
@@ -1111,7 +1123,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     {
         auto *checkUpdates = new QAction("Check for &Updates…", this);
         connect(checkUpdates, &QAction::triggered, this, [this] {
-            const QString url = "https://github.com/Sky-rym/VTFEdit-Reloaded/releases";
+            const QString url = "https://github.com/programmer1o1/VTFEdit-Reloaded/releases";
             if(!QDesktopServices::openUrl(QUrl(url))) {
                 QMessageBox::information(this, "Check for Updates",
                     QString("Could not open browser.\nPlease visit:\n%1").arg(url));
@@ -1223,7 +1235,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         QSettings().setValue("options/hdr/exposure100", v);
         vlSetFloat(VTFLIB_FP16_HDR_EXPOSURE, static_cast<vlSingle>(hdrExposure_));
 
-        if(imageId_ == 0) return;
+        if(imageId_ == kInvalidImageId) return;
         vlBindImage(imageId_);
         if(!hdrTonemapEnabled_ || showThumbnail_ || !vtfFormatIsHdr(vlImageGetFormat())) return;
         renderSelection();
@@ -1248,7 +1260,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(hdrTonemapCombo_, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int) {
         hdrTonemap_ = static_cast<HdrTonemap>(hdrTonemapCombo_->currentData().toInt());
         QSettings().setValue("options/hdr/previewMode", static_cast<int>(hdrTonemap_));
-        if(imageId_ != 0) {
+        if(imageId_ != kInvalidImageId) {
             renderSelection();
             updateCubemapPreview();
         }
@@ -1350,7 +1362,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     resourcesTree_->setAlternatingRowColors(true);
     resourcesTree_->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(resourcesTree_, &QTreeWidget::customContextMenuRequested, this, [this](const QPoint &pos) {
-        if(imageId_ == 0) return;
+        if(imageId_ == kInvalidImageId) return;
         vlBindImage(imageId_);
         if(!vlImageGetSupportsResources()) return;
 
@@ -1459,7 +1471,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         } else if(type == VTF_RSRC_SHEET) {
             vtfSheetDialog();
         } else {
-            if(imageId_ == 0) return;
+            if(imageId_ == kInvalidImageId) return;
             vlBindImage(imageId_);
             vlUInt size = 0;
             void *data = vlImageGetResourceData(static_cast<vlUInt>(type), &size);
@@ -1513,7 +1525,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
             auto *b = new QToolButton(cubemapWidget);
             b->setText(title);
             b->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-            b->setIconSize(QSize(128, 128));
+            b->setIconSize(QSize(96, 96));
             b->setCheckable(true);
             b->setEnabled(false);
             cubeFaceGroup_->addButton(b, face);
@@ -1546,6 +1558,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         cubemapDock_->setWidget(cubemapWidget);
         addDockWidget(Qt::LeftDockWidgetArea, cubemapDock_);
         cubemapDock_->hide();
+        connect(cubemapDock_, &QDockWidget::visibilityChanged, this, [this](bool visible) {
+            if(!actionCubemapPreview_) return;
+            QSignalBlocker b(actionCubemapPreview_);
+            actionCubemapPreview_->setChecked(visible);
+        });
     }
 
     vmtEditor_ = new QPlainTextEdit(this);
@@ -1628,18 +1645,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     statusBar()->showMessage("Ready");
     statusPixel_ = new QLabel(this);
     statusPixel_->setText("-");
-    statusPixel_->setMinimumWidth(230);
+    statusPixel_->setMinimumWidth(170);
     statusBar()->addPermanentWidget(statusPixel_);
     statusSelection_ = new QLabel(this);
     statusSelection_->setText("-");
-    statusSelection_->setMinimumWidth(240);
+    statusSelection_->setMinimumWidth(190);
     statusBar()->addPermanentWidget(statusSelection_);
     statusZoom_ = new QLabel(this);
     statusZoom_->setText("Zoom: -");
     statusBar()->addPermanentWidget(statusZoom_);
     statusVmt_ = new QLabel(this);
     statusVmt_->setText("VMT: -");
-    statusVmt_->setMinimumWidth(120);
+    statusVmt_->setMinimumWidth(100);
     statusBar()->addPermanentWidget(statusVmt_);
     closeVtf();
     closeVmt();
@@ -1652,9 +1669,9 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::closeVtf() {
-    if(imageId_ != 0) {
+    if(imageId_ != kInvalidImageId) {
         vlDeleteImage(imageId_);
-        imageId_ = 0;
+        imageId_ = kInvalidImageId;
     }
     currentPath_.clear();
     rawRgbaImage_ = {};
@@ -1700,8 +1717,7 @@ void MainWindow::closeVtf() {
     if(cubemapExposure_) cubemapExposure_->setValue(2000);
     cubemapHdrExposure_ = static_cast<double>(cubemapExposure_ ? cubemapExposure_->value() : 2000) / 100.0;
 
-    imageLabel_->setPixmap(QPixmap());
-    imageLabel_->setText("Drop a .vtf/.vmt/image here or use File → Open…\nTip: Ctrl+Mouse Wheel to zoom.");
+    setPreviewPlaceholderText("Drop a .vtf/.vmt/image here or use File → Open…\nTip: Ctrl+Mouse Wheel to zoom.");
     updateWindowTitle();
 
     if(statusPixel_) statusPixel_->setText("-");
@@ -1809,6 +1825,52 @@ void MainWindow::setStatusInfo(const QString &message) {
     statusBar()->showMessage(message, 3000);
 }
 
+void MainWindow::schedulePreviewRefresh() {
+    if(imageId_ == kInvalidImageId) return;
+    if(!imageLabel_) return;
+    if(labelHasPixmap(imageLabel_)) return;
+
+    const std::uint64_t token = ++previewRefreshToken_;
+    // Try again after the event loop has a chance to process pending widget/layout updates.
+    QTimer::singleShot(0, this, [this, token] { previewRefreshAttempt(token, 0); });
+}
+
+void MainWindow::previewRefreshAttempt(std::uint64_t token, int attempt) {
+    if(token != previewRefreshToken_) return;
+    if(imageId_ == kInvalidImageId) return;
+    if(!imageLabel_ || !scrollArea_) return;
+    if(labelHasPixmap(imageLabel_)) return;
+
+    constexpr int kMaxAttempts = 4;
+    const bool finalAttempt = (attempt >= kMaxAttempts - 1);
+
+    // If we already have decoded pixels but the label isn't showing them, just re-apply the view.
+    if(!rawRgbaImage_.isNull()) {
+        setViewImage(rawRgbaImage_);
+    } else {
+        renderSelection(finalAttempt);
+    }
+
+    if(token != previewRefreshToken_) return;
+    if(imageId_ == kInvalidImageId) return;
+
+    if(imageLabel_) imageLabel_->update();
+    if(scrollArea_->viewport()) scrollArea_->viewport()->update();
+
+    if(labelHasPixmap(imageLabel_)) return;
+    if(finalAttempt) return;
+
+    int delayMs = 0;
+    switch(attempt) {
+        case 0: delayMs = 30; break;
+        case 1: delayMs = 120; break;
+        case 2: delayMs = 350; break;
+        default: delayMs = 350; break;
+    }
+
+    QTimer::singleShot(delayMs, this, [this, token, attempt] { previewRefreshAttempt(token, attempt + 1); });
+}
+
 bool MainWindow::warningPopupsEnabled() const {
     return QSettings().value("options/warningPopups", true).toBool();
 }
@@ -1911,8 +1973,31 @@ void MainWindow::loadUiState() {
 
     recentFiles_ = loaded;
     while(recentFiles_.size() > recentMax_) recentFiles_.removeLast();
-    restoreGeometry(s.value("ui/geometry").toByteArray());
-    restoreState(s.value("ui/state").toByteArray());
+    const QByteArray geom = s.value("ui/geometry").toByteArray();
+    const bool restoredGeom = !geom.isEmpty() && restoreGeometry(geom);
+    const QByteArray state = s.value("ui/state").toByteArray();
+    (void)(!state.isEmpty() && restoreState(state));
+    if(!restoredGeom) {
+        resize(1024, 700);
+    }
+
+    // Clamp to the current screen's available geometry so stored layouts from larger displays
+    // don't spawn off-screen or larger than a 1366x768-ish workspace.
+    if(QScreen *screen = QGuiApplication::primaryScreen()) {
+        const QRect avail = screen->availableGeometry();
+        if(!avail.isNull()) {
+            const int maxW = std::max(640, avail.width() - 40);
+            const int maxH = std::max(480, avail.height() - 40);
+            if(width() > maxW || height() > maxH) {
+                resize(std::min(width(), maxW), std::min(height(), maxH));
+            }
+
+            const QRect g = geometry();
+            const int maxX = avail.x() + avail.width() - g.width();
+            const int maxY = avail.y() + avail.height() - g.height();
+            move(std::clamp(g.x(), avail.x(), maxX), std::clamp(g.y(), avail.y(), maxY));
+        }
+    }
     rebuildRecentMenus();
 }
 
@@ -1961,7 +2046,7 @@ void MainWindow::addRecentFile(RecentFileKind kind, const QString &path) {
 }
 
 bool MainWindow::maybeSaveVtf() {
-    if(imageId_ == 0) return true;
+    if(imageId_ == kInvalidImageId) return true;
     if(!vtfDirty_) return true;
 
     const auto result = QMessageBox::question(this, "Unsaved VTF changes", "Save changes to this VTF?",
@@ -1999,7 +2084,7 @@ bool MainWindow::openVtf(const QString &path) {
         return false;
     }
 
-    if(imageId_ != 0) {
+    if(imageId_ != kInvalidImageId) {
         vlDeleteImage(imageId_);
     }
     imageId_ = newImageId;
@@ -2034,7 +2119,7 @@ bool MainWindow::openPath(const QString &path) {
 }
 
 void MainWindow::updateUiFromBoundVtf() {
-    if(imageId_ == 0) {
+    if(imageId_ == kInvalidImageId) {
         closeVtf();
         return;
     }
@@ -2073,7 +2158,8 @@ void MainWindow::updateUiFromBoundVtf() {
     }
 
     updateSelectionLimits();
-    renderSelection();
+    // Render preview, but delay warning dialogs until we've had a chance to retry on the next tick.
+    renderSelection(false);
     rebuildResourcesTree();
     if(statusSelection_) {
         QString faceLabel;
@@ -2123,13 +2209,16 @@ void MainWindow::updateUiFromBoundVtf() {
 
     updateCubemapPreview();
     updateWindowTitle();
+    schedulePreviewRefresh();
+    if(imageLabel_) imageLabel_->update();
+    if(scrollArea_ && scrollArea_->viewport()) scrollArea_->viewport()->update();
 }
 
 void MainWindow::rebuildResourcesTree() {
     if(!resourcesTree_) return;
     resourcesTree_->clear();
 
-    if(imageId_ == 0) {
+    if(imageId_ == kInvalidImageId) {
         if(resourcesDock_) resourcesDock_->hide();
         return;
     }
@@ -2307,17 +2396,48 @@ QSize MainWindow::displayedImageSize() const {
     return rawRgbaImage_.size();
 }
 
+void MainWindow::setPreviewPlaceholderText(const QString &text) {
+    if(!imageLabel_ || !scrollArea_) return;
+
+    scrollArea_->setWidgetResizable(true);
+    imageLabel_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    imageLabel_->setScaledContents(false);
+    imageLabel_->setWordWrap(true);
+    imageLabel_->setAlignment(Qt::AlignCenter);
+
+    QFont f = imageLabel_->font();
+    const qreal basePt = (f.pointSizeF() > 0.0) ? f.pointSizeF() : 11.0;
+    f.setPointSizeF(std::max<qreal>(basePt, 14.0));
+    imageLabel_->setFont(f);
+    imageLabel_->setStyleSheet({});
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+    imageLabel_->setForegroundRole(QPalette::PlaceholderText);
+#else
+    imageLabel_->setForegroundRole(QPalette::WindowText);
+#endif
+
+    imageLabel_->setPixmap(QPixmap());
+    imageLabel_->setText(text);
+}
+
 void MainWindow::setViewImage(const QImage &rawRgba) {
     rawRgbaImage_ = rawRgba;
     viewImage_ = {};
 
     if(rawRgbaImage_.isNull()) {
-        imageLabel_->setPixmap(QPixmap());
-        imageLabel_->setText("No preview");
+        setPreviewPlaceholderText("No preview");
         actionCopyImage_->setEnabled(false);
         updateZoomUi();
         return;
     }
+
+    if(scrollArea_) scrollArea_->setWidgetResizable(false);
+    imageLabel_->setStyleSheet({});
+    imageLabel_->setForegroundRole(QPalette::WindowText);
+    imageLabel_->setWordWrap(false);
+    imageLabel_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    imageLabel_->setScaledContents(true);
+    imageLabel_->clear(); // ensure placeholder text doesn't persist behind the pixmap
 
     const auto channelMode = static_cast<ChannelMode>(channelCombo_->currentData().toInt());
     const auto bgMode = static_cast<BackgroundMode>(backgroundCombo_->currentData().toInt());
@@ -2494,7 +2614,7 @@ void MainWindow::cubemapPreviewToggled(bool enabled) {
         cubemapDock_->hide();
         return;
     }
-    if(imageId_ == 0) {
+    if(imageId_ == kInvalidImageId) {
         actionCubemapPreview_->setChecked(false);
         return;
     }
@@ -2510,21 +2630,13 @@ void MainWindow::cubemapPreviewToggled(bool enabled) {
 
 void MainWindow::updateCubemapPreview() {
     if(!cubemapDock_) return;
-    if(!actionCubemapPreview_ || !actionCubemapPreview_->isChecked()) {
-        cubemapDock_->hide();
-        return;
-    }
-    if(imageId_ == 0) {
-        cubemapDock_->hide();
-        return;
-    }
-    vlBindImage(imageId_);
+    // Only refresh the dock contents here; visibility is handled by cubemapPreviewToggled() and closeVtf().
+    if(!cubemapDock_->isVisible()) return;
+    if(imageId_ == kInvalidImageId) return;
+    if(!vlBindImage(imageId_)) return;
 
     const vlUInt faces = vlImageGetFaceCount();
-    if(faces < 6) {
-        cubemapDock_->hide();
-        return;
-    }
+    if(faces < 6) return;
 
     const auto channelMode = static_cast<ChannelMode>(channelCombo_->currentData().toInt());
     const auto bgMode = static_cast<BackgroundMode>(backgroundCombo_->currentData().toInt());
@@ -2821,7 +2933,8 @@ void MainWindow::openFileDialog() {
     const QString path = QFileDialog::getOpenFileName(this, "Open VTF", startDir, "Valve Texture Format (*.vtf)");
     if(path.isEmpty()) return;
     s.setValue("paths/open_vtf", QFileInfo(path).absolutePath());
-    openVtf(path);
+    // Defer until after the native file dialog fully closes.
+    QTimer::singleShot(0, this, [this, path] { openVtf(path); });
 }
 
 void MainWindow::openRecentFile() {
@@ -2901,7 +3014,7 @@ void MainWindow::createVmtFromCurrentVtf() {
     if(!maybeSaveVmt()) return;
     bool suggestAlphaTest = false;
     bool suggestTranslucent = false;
-    if(imageId_ != 0) {
+    if(imageId_ != kInvalidImageId) {
         vlBindImage(imageId_);
         const vlUInt flags = vlImageGetFlags();
         suggestAlphaTest = (flags & TEXTUREFLAGS_ONEBITALPHA) != 0;
@@ -2996,7 +3109,7 @@ void MainWindow::openLinkedVtfFromVmt() {
 }
 
 void MainWindow::vtfPropertiesDialog() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
 
     vlSingle rx = 0, ry = 0, rz = 0;
@@ -3104,7 +3217,7 @@ void MainWindow::vtfPropertiesDialog() {
 }
 
 void MainWindow::vtfResourcesDialog() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
     if(!vlImageGetSupportsResources()) {
         QMessageBox::information(this, "Resources unavailable", "This VTF version does not support resources (requires v7.3+).");
@@ -3126,7 +3239,7 @@ void MainWindow::vtfResourcesDialog() {
 }
 
 void MainWindow::vtfSheetDialog() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
     if(!vlImageGetSupportsResources()) {
         QMessageBox::information(this, "Resources unavailable", "This VTF version does not support resources (requires v7.3+).");
@@ -3160,7 +3273,7 @@ void MainWindow::vtfSheetDialog() {
 }
 
 void MainWindow::editVtfFlagsDialog() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
     const vlUInt current = vlImageGetFlags();
 
@@ -3182,7 +3295,7 @@ void MainWindow::editVtfFlagsDialog() {
 }
 
 void MainWindow::saveVtf() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     if(currentPath_.isEmpty()) {
         saveAsVtfDialog();
         return;
@@ -3329,7 +3442,7 @@ void MainWindow::wadConvertDialog() {
 }
 
 void MainWindow::generateNormalMapCurrentFrame() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
 
     const auto result = QMessageBox::question(
@@ -3351,7 +3464,7 @@ void MainWindow::generateNormalMapCurrentFrame() {
 }
 
 void MainWindow::generateNormalMapsAllFrames() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
 
     const auto result = QMessageBox::question(
@@ -3373,7 +3486,7 @@ void MainWindow::generateNormalMapsAllFrames() {
 }
 
 void MainWindow::generateSphereMap() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
 
     if(vlImageGetFaceCount() < 6) {
@@ -3400,7 +3513,7 @@ void MainWindow::generateSphereMap() {
 }
 
 void MainWindow::exportPngDialog() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
 
     QString error;
@@ -3433,7 +3546,7 @@ void MainWindow::exportPngDialog() {
 }
 
 void MainWindow::exportThumbnailPngDialog() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
 
     QString error;
@@ -3607,9 +3720,13 @@ bool MainWindow::createVtfFromRgbaImages(const QList<QImage> &rgba8888Images, co
     s.setValue("paths/save_vtf", QFileInfo(savePath).absolutePath());
 
     vlUInt newImageId = 0;
-    if(!vlCreateImage(&newImageId) || !vlBindImage(newImageId)) {
-        showErrorPopup("VTFLib error", QString("Failed to create/bind image handle: %1").arg(vlGetLastError()));
-        if(newImageId) vlDeleteImage(newImageId);
+    if(!vlCreateImage(&newImageId)) {
+        showErrorPopup("VTFLib error", QString("Failed to create image handle: %1").arg(vlGetLastError()));
+        return false;
+    }
+    if(!vlBindImage(newImageId)) {
+        vlDeleteImage(newImageId);
+        showErrorPopup("VTFLib error", QString("Failed to bind image handle: %1").arg(vlGetLastError()));
         return false;
     }
 
@@ -3724,7 +3841,7 @@ bool MainWindow::createVtfFromRgbaImages(const QList<QImage> &rgba8888Images, co
         return false;
     }
 
-    if(imageId_ != 0) {
+    if(imageId_ != kInvalidImageId) {
         vlDeleteImage(imageId_);
     }
     imageId_ = newImageId;
@@ -3743,7 +3860,7 @@ bool MainWindow::createVtfFromRgbaImages(const QList<QImage> &rgba8888Images, co
 }
 
 void MainWindow::exportAllFramesDialog() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
 
     const auto frames = vlImageGetFrameCount();
@@ -3780,7 +3897,7 @@ void MainWindow::exportAllFramesDialog() {
 }
 
 void MainWindow::exportAllFacesDialog() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
 
     const auto faces = vlImageGetFaceCount();
@@ -3823,7 +3940,7 @@ void MainWindow::exportAllFacesDialog() {
 }
 
 void MainWindow::exportAllSlicesDialog() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
 
     vlUInt depth = 0;
@@ -3877,7 +3994,7 @@ void MainWindow::exportAllSlicesDialog() {
 }
 
 void MainWindow::exportAllMipmapsDialog() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
 
     const auto mips = vlImageGetMipmapCount();
@@ -3918,7 +4035,7 @@ void MainWindow::exportAllMipmapsDialog() {
 }
 
 void MainWindow::exportAllDialog() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
 
     const unsigned int frames = vlImageGetFrameCount();
@@ -3994,7 +4111,8 @@ void MainWindow::importImageDialog() {
     const QStringList paths = QFileDialog::getOpenFileNames(this, "Import Image(s)", startDir, "Images (*.png *.jpg *.jpeg *.bmp);;All files (*.*)");
     if(paths.isEmpty()) return;
     s.setValue("paths/import_image", QFileInfo(paths[0]).absolutePath());
-    importImagesFromPaths(paths);
+    // Defer until after the native file dialog fully closes.
+    QTimer::singleShot(0, this, [this, paths] { importImagesFromPaths(paths); });
 }
 
 bool MainWindow::importImageFromPath(const QString &path) {
@@ -4022,7 +4140,7 @@ bool MainWindow::importImagesFromPaths(const QStringList &paths) {
 }
 
 void MainWindow::saveAsVtfDialog() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     QSettings s;
     const QString startDir = s.value("paths/save_vtf").toString();
     const QString suggested = QFileInfo(currentPath_).fileName();
@@ -4114,7 +4232,7 @@ void MainWindow::zoomComboChanged() {
 }
 
 void MainWindow::updateSelectionLimits() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
     const unsigned int frames = vlImageGetFrameCount();
     const unsigned int faces = vlImageGetFaceCount();
@@ -4169,7 +4287,7 @@ void MainWindow::updateSelectionLimits() {
 }
 
 void MainWindow::selectionChanged() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     frame_ = static_cast<unsigned int>(frameSpin_->value());
     face_ = static_cast<unsigned int>(faceSpin_->value());
     slice_ = static_cast<unsigned int>(sliceSpin_->value());
@@ -4183,7 +4301,7 @@ void MainWindow::selectionChanged() {
     updateCubemapPreview();
     if(statusSelection_) {
         QString faceLabel;
-        if(imageId_ != 0) {
+        if(imageId_ != kInvalidImageId) {
             vlBindImage(imageId_);
             if(vlImageGetFaceCount() >= 6) {
                 const QString name = cubeFaceName(face_);
@@ -4214,8 +4332,8 @@ void MainWindow::selectCustomBackgroundColor() {
     updateCubemapPreview();
 }
 
-void MainWindow::renderSelection() {
-    if(imageId_ == 0) return;
+void MainWindow::renderSelection(bool showErrorPopup) {
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
 
     QString error;
@@ -4245,15 +4363,17 @@ void MainWindow::renderSelection() {
         }
     }
     if(rgba.isNull()) {
-        showWarningPopup("Preview unavailable", error);
-        setViewImage({});
+        if(showErrorPopup) {
+            showWarningPopup("Preview unavailable", error);
+            setViewImage({});
+        }
         return;
     }
     setViewImage(rgba);
 }
 
 void MainWindow::togglePlayback() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
 
     if(vlImageGetFrameCount() <= 1) return;
@@ -4270,7 +4390,7 @@ void MainWindow::togglePlayback() {
 }
 
 void MainWindow::playbackTick() {
-    if(imageId_ == 0) return;
+    if(imageId_ == kInvalidImageId) return;
     vlBindImage(imageId_);
 
     const unsigned int frames = vlImageGetFrameCount();
@@ -4472,7 +4592,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event) {
             auto *e = static_cast<QContextMenuEvent *>(event);
             QMenu menu(this);
             menu.addAction(actionOpen_);
-            if(imageId_ != 0) {
+            if(imageId_ != kInvalidImageId) {
                 menu.addSeparator();
                 menu.addAction(actionReloadVtf_);
                 menu.addAction(actionOpenContainingFolder_);

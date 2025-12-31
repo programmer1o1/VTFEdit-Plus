@@ -39,7 +39,9 @@
 #   define WIN32_LEAN_AND_MEAN
 #   include <windows.h>
 
-#   ifdef VTFLIB_EXPORTS
+#   if defined(VTFLIB_STATIC)
+#       define VTFLIB_API
+#   elif defined(VTFLIB_EXPORTS)
 #       define VTFLIB_API __declspec(dllexport)
 #   else
 #       define VTFLIB_API __declspec(dllimport)
@@ -51,7 +53,11 @@
 #   ifndef __stdcall
 #       define __stdcall
 #   endif
-#   define VTFLIB_API __attribute__((visibility("default")))
+#   if defined(VTFLIB_STATIC)
+#       define VTFLIB_API
+#   else
+#       define VTFLIB_API __attribute__((visibility("default")))
+#   endif
 #endif
 
 // Custom data types

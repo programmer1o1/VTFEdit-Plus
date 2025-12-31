@@ -24,7 +24,7 @@ QString quoted(const QString &s) {
 CreateVmtDialog::CreateVmtDialog(QString suggestedBaseTexture, QWidget *parent, bool suggestAlphaTest, bool suggestTranslucent) : QDialog(parent) {
     setWindowTitle("Create VMT");
     setModal(true);
-    resize(720, 560);
+    resize(680, 520);
 
     auto *root = new QVBoxLayout(this);
     auto *form = new QFormLayout;

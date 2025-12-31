@@ -10,7 +10,7 @@ ResourceHexDialog::ResourceHexDialog(QString title, QByteArray data, QWidget *pa
     : QDialog(parent), data_(std::move(data)) {
     setWindowTitle(std::move(title));
     setModal(true);
-    resize(820, 520);
+    resize(760, 480);
 
     auto *layout = new QVBoxLayout(this);
     edit_ = new QPlainTextEdit(this);
@@ -59,4 +59,3 @@ QString ResourceHexDialog::toHexDump(const QByteArray &data) {
 
     return out;
 }
-

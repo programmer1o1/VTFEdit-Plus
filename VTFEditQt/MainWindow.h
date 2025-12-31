@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstdint>
+#include <limits>
+
 #include <QColor>
 #include <QImage>
 #include <QMainWindow>
@@ -100,6 +103,15 @@ private slots:
 private:
     static constexpr double kMinZoom = 0.01;
     static constexpr double kMaxZoom = 64.0;
+    static constexpr std::uint32_t kInvalidImageId = std::numeric_limits<std::uint32_t>::max();
+
+    enum class RecentFileKind { Vtf, Vmt };
+    struct RecentFileEntry {
+        RecentFileKind kind{};
+        QString path;
+    };
+    static constexpr int kDefaultRecentMax = 8;
+    static constexpr int kMaxRecentMax = 32;
 
     bool importImageFromPath(const QString &path);
     bool importImagesFromPaths(const QStringList &paths);
@@ -119,6 +131,7 @@ private:
     QSize displayedImageSize() const;
     void updateBackgroundComboCustomIcon();
     void selectCustomBackgroundColor();
+    void setPreviewPlaceholderText(const QString &text);
 
     void addRecentVtf(const QString &path);
     void addRecentVmt(const QString &path);
@@ -131,7 +144,7 @@ private:
 
     void updateUiFromBoundVtf();
     void updateSelectionLimits();
-    void renderSelection();
+    void renderSelection(bool showErrorPopup = true);
     void setViewImage(const QImage &rawRgba);
     void rebuildResourcesTree();
     void updateCubemapPreview();
@@ -143,6 +156,8 @@ private:
     void updateVmtStatusText();
     void setStatusError(const QString &message);
     void setStatusInfo(const QString &message);
+    void schedulePreviewRefresh();
+    void previewRefreshAttempt(std::uint64_t token, int attempt);
 
     void closeVtf();
     void closeVmt();
@@ -152,7 +167,7 @@ private:
     QString vmtText() const;
     QString formatVmtText(const QString &text) const;
 
-    unsigned int imageId_ = 0;
+    std::uint32_t imageId_ = kInvalidImageId;
     QString currentPath_;
     QImage rawRgbaImage_;
     QImage viewImage_;
@@ -165,6 +180,7 @@ private:
     bool hdrTonemapEnabled_ = true;
     HdrTonemap hdrTonemap_ = HdrTonemap::VTFLib;
     bool previewIsHdrTonemapped_ = false;
+    std::uint64_t previewRefreshToken_ = 0;
     unsigned int frame_ = 0;
     unsigned int face_ = 0;
     unsigned int slice_ = 0;
@@ -274,14 +290,6 @@ private:
     QAction *actionCreateVmtFromVtf_ = nullptr;
     QAction *actionFormatVmt_ = nullptr;
     QAction *actionLiveValidateVmt_ = nullptr;
-
-    enum class RecentFileKind { Vtf, Vmt };
-    struct RecentFileEntry {
-        RecentFileKind kind{};
-        QString path;
-    };
-    static constexpr int kDefaultRecentMax = 8;
-    static constexpr int kMaxRecentMax = 32;
 
     QMenu *recentFilesMenu_ = nullptr;
     QList<RecentFileEntry> recentFiles_;
