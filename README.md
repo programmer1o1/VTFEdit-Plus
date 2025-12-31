@@ -27,23 +27,57 @@ included.
 
 ## How to Build
 
-### Prerequisites
-Visual Studio 2019 or Visual Studio 2022
+### Windows (unchanged)
+Use the existing Visual Studio 2019/2022 solutions under `sln/` as before.
 
-"Desktop development with C++" workload
-#
+### Linux (new, CLI + library)
+Prerequisites: `cmake`, a C/C++ compiler (gcc/clang), and optionally AMD Compressonator (`libcompressonator`) for DXT compression. VTFCmd can use DevIL (OpenIL) if installed, or a bundled stb-based loader/writer backend.
 
-Open the solution in /VTFEdit-Reloaded/sln/ with Visual Studio 2019 or 2022. Set the build from Debug to Release, then right-click on VTFEdit in the Solution Explorer and click Set as startup project, then right-click VTFEdit again and click Build.
+Build steps:
+```
+mkdir -p build && cd build
+cmake .. -G Ninja -DVTFLIB_USE_COMPRESSONATOR=ON   # OFF to build without Compressonator
+cmake --build . --config Release
+```
+Outputs:
+- `build/VTFLib/libvtflib.a` – static VTFLib suitable for Linux.
+- `build/VTFCmd/vtfcmd` – command-line converter runnable on Linux.
 
-After the Build is finished, the executable will be in /VTFEdit-Reloaded/sln/vs2019/Build/
+Notes:
+- If Compressonator is not found on your system, DXT compression/decompression will be disabled at runtime with a clear error message.
+- VTFCmd image I/O backend is controlled by `-DVTFCMD_IMAGE_BACKEND=auto|devil|stb` (default `auto`). With `auto`, CMake will use DevIL if found, otherwise it will fall back to the bundled stb backend.
+- The stb backend uses `thirdparty/include/stb_image.h` and `thirdparty/include/stb_image_write.h`.
+- If you only want the library, configure with `-DBUILD_VTFCMD=OFF`.
+- If you want the DevIL backend but CMake can’t find it, you can point it at your paths with `-DIL_INCLUDE_DIR=...` and `-DIL_LIBRARY=...` (for example `/usr/include` and `/usr/lib64/libIL.so` or `/usr/lib64/libIL.so.1`).
+- The original WinForms GUI (VTFEdit/) remains Windows-only.
 
-Move the executable and all dll files to any folder you want VTFEdit-Reloaded to be in, it does not matter.
+### Linux/macOS/Windows (new, Qt GUI)
+Prerequisites: Qt 6 (or Qt 5) Widgets development packages and a C++ compiler.
 
-#
-HLLib can be obtained from here, with the dll and the source code if you want to build it yourself. [>>Link](https://web.archive.org/web/20171114194253/http://nemesis.thewavelength.net/files/files/hllib246.zip) 
+Build steps (GUI only, no DevIL required):
+```
+cmake -S . -B build -G Ninja -DBUILD_VTFCMD=OFF -DBUILD_VTFEDIT_QT=ON
+cmake --build build --config Release
+```
+Outputs:
+- `build/VTFEditQt/vtfeditqt` – Qt-based VTF/VMT tool (VTF view/export, image import → VTF, basic VMT editor + validation, batch convert folder).
 
-DevIL.dll from this zip (This may be changed if the project has a working 32 bit compile) [>>Link](https://sourceforge.net/projects/openil/files/DevIL%20Win32%20and%20Win64/DevIL-EndUser-x64-1.8.0.zip/download?use_mirror=phoenixnap)
-#
+Notes:
+- Batch convert supports presets, preserves input folder structure under the output root, and can generate `.vmt` with `$basetexture` computed relative to a configurable `materials/` root.
+- Create options include common VTF header flags (e.g. normal map, clamp, filtering) via the Qt GUI.
+- Opened `.vtf` files can have header flags edited via the GUI and then saved back to disk.
+- VTF Properties can edit start frame, bump scale, reflectivity, and can regenerate mipmaps/thumbnail.
+- VMT creation wizard can generate a starter `.vmt` (and can derive `$basetexture` when the VTF path contains `materials/`).
+- DXT formats (DXT1/3/5/ATI) require a compressor for import/export, and require Compressonator for viewing/decompression on non-Windows builds; without it only uncompressed formats will work reliably.
+
+## CI
+
+GitHub Actions builds the core targets (`vtflib`, `vtfcmd`) on Ubuntu/Windows/macOS, and builds the Qt GUI (`vtfeditqt`) on Ubuntu (Qt 6).
+
+## Optional Dependencies (legacy/Windows)
+
+- HLLib (optional): https://web.archive.org/web/20171114194253/http://nemesis.thewavelength.net/files/files/hllib246.zip
+- DevIL (OpenIL, optional): https://sourceforge.net/projects/openil/files/DevIL%20Win32%20and%20Win64/DevIL-EndUser-x64-1.8.0.zip/download?use_mirror=phoenixnap
 
 ## VTFCmd Usage
 Parameters:
@@ -132,7 +166,7 @@ vtfcmd.exe -folder "C:\output\*.vtf" -output "C:\input" -exportformat "jpg"
   - It will now iterate through all pixels in the image and check their opacity. Previously this only looked at certain attributes of the image.
 
   v2.0.9
-  - Releases now include VTFCmd.exe (Untested.)
+  - Releases now include VTFCmd.exe (not yet verified).
   - Added a saved parameter for the zoom level of the VMT editor (Ctrl+MWheel changes the zoom level for this).
   - Added a color panel that is used to view the representation of the reflectivity value and can be used to change that value when clicking on it.
   - Added option to enable/disable notification sounds.
@@ -143,7 +177,7 @@ vtfcmd.exe -folder "C:\output\*.vtf" -output "C:\input" -exportformat "jpg"
   - Optimized some functions.
   - Removed the tabs in favor of adding a panel to the right, as a lot of redundant information was removed.
   - Removed the file system ui elements.
-  - Removed WAD convert as it's broken. Don't know what happened to break it.
+  - Removed WAD convert due to known issues.
   - Fixed some conditional statements.
 	
   v2.0.8
@@ -166,8 +200,8 @@ vtfcmd.exe -folder "C:\output\*.vtf" -output "C:\input" -exportformat "jpg"
   - The default version has also been changed to 7.4 as mostly commonly that will be the version used by source engine modders.
   - The context menu's options for VTF files has been slightly changed for more clarity.
   - The File menu has been slightly changed for more clarity and better positioning. Creating either VTF or VMT is now under the first option "Create New..."
-  - Pulled request by goodusername123, which excludes the sRGB flag from VTFs. This is hopefully a temporary measure.
-  - Reverted the syntax highlighter as it's terrible with performance and breaks some functionality. All related code is commented out if the issues can be solved later.
+  - Pulled request by goodusername123, which excludes the sRGB flag from VTFs (temporary measure).
+  - Reverted the syntax highlighter due to performance and functional issues; related code remains commented out.
   - Added a way to change the framerate for animated playback (in milliseconds).
   - Fixed the import's resize filtering to use what you chose instead of being forced to use only one type of filter.
   - Adjusted the About dialog to include @WereTech and @Sky-rym as authors.

@@ -271,6 +271,14 @@ VTFLIB_API vlUInt vlImageGetMinorVersion()
 	return Image->GetMinorVersion();
 }
 
+VTFLIB_API vlVoid vlImageSetMinorVersion(vlUInt uiMinorVersion)
+{
+	if(Image == 0)
+		return;
+
+	Image->SetMinorVersion(uiMinorVersion);
+}
+
 VTFLIB_API vlUInt vlImageGetSize()
 {
 	if(Image == 0)

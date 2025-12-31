@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  core:
+    name: Core (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure
+        run: >-
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=Release
+          -DVTFLIB_USE_COMPRESSONATOR=OFF
+          -DVTFCMD_IMAGE_BACKEND=stb
+          -DBUILD_VTFEDIT_QT=OFF
+
+      - name: Build
+        run: cmake --build build --config Release
+
+  qt-ubuntu:
+    name: Qt GUI (ubuntu)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt 6
+        run: sudo apt-get update && sudo apt-get install -y qt6-base-dev qt6-base-dev-tools ninja-build
+
+      - name: Configure
+        run: >-
+          cmake -S . -B build-qt -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DBUILD_VTFCMD=OFF
+          -DBUILD_VTFEDIT_QT=ON
+          -DVTFLIB_USE_COMPRESSONATOR=OFF
+
+      - name: Build
+        run: cmake --build build-qt --config Release

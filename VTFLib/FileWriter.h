@@ -13,6 +13,7 @@
 #define FILEWRITER_H
 
 #include "stdafx.h"
+#include <cstdio>
 #include "Writer.h"
 
 namespace VTFLib
@@ -24,7 +25,7 @@ namespace VTFLib
 			class CFileWriter : public IWriter
 			{
 			private:
-				HANDLE hFile;
+                FILE *hFile;
 				vlChar *cFileName;
 
 			public:

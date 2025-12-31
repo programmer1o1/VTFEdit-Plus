@@ -57,6 +57,7 @@ VTFLIB_API vlUInt vlImageGetHasImage();
 
 VTFLIB_API vlUInt vlImageGetMajorVersion();
 VTFLIB_API vlUInt vlImageGetMinorVersion();
+VTFLIB_API vlVoid vlImageSetMinorVersion(vlUInt uiMinorVersion);
 VTFLIB_API vlUInt vlImageGetSize();
 
 VTFLIB_API vlUInt vlImageGetWidth();

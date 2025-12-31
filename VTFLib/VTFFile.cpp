@@ -16,7 +16,9 @@
 #include "VTFDXTn.h"
 #include "VTFMathlib.h"
 
+#ifdef VTFLIB_HAS_COMPRESSONATOR
 #include "Compressonator.h"
+#endif
 
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image_resize2.h"
@@ -268,7 +270,7 @@ vlBool CVTFFile::Create(vlUInt uiWidth, vlUInt uiHeight, vlUInt uiFrames, vlUInt
 	this->Header = new SVTFHeader;
 	memset(this->Header, 0, sizeof(SVTFHeader));
 
-	strcpy_s(this->Header->TypeString, "VTF");
+	strcpy(this->Header->TypeString, "VTF");
 	this->Header->Version[0] = VTF_MAJOR_VERSION;
 	this->Header->Version[1] = VTF_MINOR_VERSION_DEFAULT;
 	this->Header->HeaderSize = 0;
@@ -381,6 +383,7 @@ vlBool CVTFFile::Create(vlUInt uiWidth, vlUInt uiHeight, vlByte *lpImageDataRGBA
 	return this->Create(uiWidth, uiHeight, 1, 1, 1, &lpImageDataRGBA8888, VTFCreateOptions);
 }
 
+#ifdef VTFLIB_HAS_COMPRESSONATOR
 static CMP_FORMAT GetCMPFormat( VTFImageFormat imageFormat, bool bDXT5GA )
 {
 	if ( bDXT5GA )
@@ -440,6 +443,7 @@ static const char *GetCMPErrorString( CMP_ERROR error )
 		case CMP_ERR_GENERIC:                       return "An unknown error occurred.";
 	}
 }
+#endif // VTFLIB_HAS_COMPRESSONATOR
 
 //
 // Create()
@@ -650,8 +654,14 @@ vlBool CVTFFile::Create(vlUInt uiWidth, vlUInt uiHeight, vlUInt uiFrames, vlUInt
 
 						for (vlUInt m = 1; m < this->Header->MipCount; m++)
 						{
-							vlUShort usWidth  = max(1u, this->Header->Width  >> m);
-							vlUShort usHeight = max(1u, this->Header->Height >> m);
+							vlUInt uiMipWidth = ((vlUInt)this->Header->Width) >> m;
+							vlUInt uiMipHeight = ((vlUInt)this->Header->Height) >> m;
+
+							if(uiMipWidth < 1) uiMipWidth = 1;
+							if(uiMipHeight < 1) uiMipHeight = 1;
+
+							vlUShort usWidth  = (vlUShort)uiMipWidth;
+							vlUShort usHeight = (vlUShort)uiMipHeight;
 
 							if (!stbir_resize(
 								pSource, this->Header->Width, this->Header->Height, 0,
@@ -2853,6 +2863,7 @@ vlBool CVTFFile::ConvertToRGBA8888(vlByte *lpSource, vlByte *lpDest, vlUInt uiWi
 //-----------------------------------------------------------------------------------------------------
 vlBool CVTFFile::DecompressDXTn(vlByte *src, vlByte *dst, vlUInt uiWidth, vlUInt uiHeight, VTFImageFormat SourceFormat)
 {
+#ifdef VTFLIB_HAS_COMPRESSONATOR
 	CMP_Texture srcTexture = {0};
 	srcTexture.dwSize     = sizeof( srcTexture );
 	srcTexture.dwWidth    = uiWidth;
@@ -2885,8 +2896,11 @@ vlBool CVTFFile::DecompressDXTn(vlByte *src, vlByte *dst, vlUInt uiWidth, vlUInt
 	}
 
 	return vlTrue;
+#else
+	LastError.Set("DXT decompression not available (Compressonator not found).");
+	return vlFalse;
+#endif
 }
-
 //
 // ConvertFromRGBA8888()
 // Convert input image data (lpSource) to output image data (lpDest) of format DestFormat.
@@ -2901,8 +2915,9 @@ vlBool CVTFFile::ConvertFromRGBA8888(vlByte *lpSource, vlByte *lpDest, vlUInt ui
 // Compress input image data (lpSource) to output image data (lpDest) of format DestFormat
 // where DestFormat is of format DXTn.  Uses NVidia DXT library.
 //
-vlBool CVTFFile::CompressDXTn(vlByte *lpSource, vlByte *lpDest, vlUInt uiWidth, vlUInt uiHeight, VTFImageFormat DestFormat, vlUInt nAlphaThreshold = 0)
+vlBool CVTFFile::CompressDXTn(vlByte *lpSource, vlByte *lpDest, vlUInt uiWidth, vlUInt uiHeight, VTFImageFormat DestFormat, vlUInt nAlphaThreshold)
 {
+#ifdef VTFLIB_HAS_COMPRESSONATOR
 	CMP_Texture srcTexture = {0};
 	srcTexture.dwSize     = sizeof( srcTexture );
 	srcTexture.dwWidth    = uiWidth;
@@ -2941,6 +2956,10 @@ vlBool CVTFFile::CompressDXTn(vlByte *lpSource, vlByte *lpDest, vlUInt uiWidth, 
 	}
 
 	return vlTrue;
+#else
+	LastError.Set("DXT compression not available (Compressonator not found).");
+	return vlFalse;
+#endif
 }
 
 typedef vlVoid (*TransformProc)(vlUInt16& R, vlUInt16& G, vlUInt16& B, vlUInt16& A);
@@ -2993,7 +3012,7 @@ static inline vlSingle FP16ToFP32(vlUInt16 input)
 		vlUInt16 uiExponent : 5;
 		vlUInt16 uiSign : 1;
 	} fp16;
-	std::memcpy(&fp16, &input, sizeof(vlUInt16));
+	memcpy(&fp16, &input, sizeof(vlUInt16));
 
 	if (fp16.uiExponent == 31)
 	{
@@ -3022,7 +3041,7 @@ static inline vlSingle FP16ToFP32(vlUInt16 input)
 
 		vlUInt32 uiBits = (uiMantissa << 13) | (uiExponent << 23) | (uiSign << 31);
 		vlSingle sValue;
-		std::memcpy(&sValue, &uiBits, sizeof(sValue));
+		memcpy(&sValue, &uiBits, sizeof(sValue));
 		return sValue;
 	}
 }
@@ -3307,13 +3326,13 @@ vlBool ConvertTemplated(vlByte *lpSource, vlByte *lpDest, vlUInt uiWidth, vlUInt
 			//Clamp rgb values to prevent artifacting
 			vlUInt16 modifier = SA * 16;
 			SR = (SR * modifier) / HDR_EXPOSURE;
-			SR = min(max(0, SR), 255);
+			SR = min(max((vlUInt16)0, SR), (vlUInt16)255);
 
 			SG = (SG * modifier) / HDR_EXPOSURE;
-			SG = min(max(0, SG), 255);
+			SG = min(max((vlUInt16)0, SG), (vlUInt16)255);
 
 			SB = (SB * modifier) / HDR_EXPOSURE;
-			SB = min(max(0, SB), 255);
+			SB = min(max((vlUInt16)0, SB), (vlUInt16)255);
 
 			SA = ~0;
 		}

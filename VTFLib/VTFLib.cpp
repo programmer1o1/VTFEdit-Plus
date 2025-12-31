@@ -258,9 +258,10 @@ VTFLIB_API vlVoid vlSetFloat(VTFLibOption Option, vlSingle sValue)
 	}
 }
 
+#ifdef _WIN32
 //
 // DllMain()
-// DLL entry point.
+// DLL entry point (Windows only).
 //
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 {
@@ -278,3 +279,4 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 	}
     return TRUE;
 }
+#endif

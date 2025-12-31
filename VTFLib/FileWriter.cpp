@@ -39,12 +39,10 @@ vlBool CFileWriter::Open()
 {
 	this->Close();
 
-	this->hFile = CreateFile(this->cFileName, GENERIC_WRITE, NULL, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	this->hFile = fopen(this->cFileName, "wb");
 
-	if(this->hFile == INVALID_HANDLE_VALUE)
+	if(this->hFile == NULL)
 	{
-		this->hFile = NULL;
-
 		LastError.Set("Error opening file.", vlTrue);
 
 		return vlFalse;
@@ -57,7 +55,7 @@ vlVoid CFileWriter::Close()
 {
 	if(this->hFile != NULL)
 	{
-		CloseHandle(this->hFile);
+		fclose(this->hFile);
 		this->hFile = NULL;
 	}
 }
@@ -69,7 +67,11 @@ vlUInt CFileWriter::GetStreamSize() const
 		return 0;
 	}
 
-	return GetFileSize(this->hFile, NULL);
+	long current = ftell(this->hFile);
+	fseek(this->hFile, 0, SEEK_END);
+	long size = ftell(this->hFile);
+	fseek(this->hFile, current, SEEK_SET);
+	return (vlUInt)size;
 }
 
 vlUInt CFileWriter::GetStreamPointer() const
@@ -79,7 +81,7 @@ vlUInt CFileWriter::GetStreamPointer() const
 		return 0;
 	}
 
-	return (vlUInt)SetFilePointer(this->hFile, 0, NULL, FILE_CURRENT);
+	return (vlUInt)ftell(this->hFile);
 }
 
 vlUInt CFileWriter::Seek(vlLong lOffset, vlUInt uiMode)
@@ -89,7 +91,17 @@ vlUInt CFileWriter::Seek(vlLong lOffset, vlUInt uiMode)
 		return 0;
 	}
 
-	return (vlUInt)SetFilePointer(this->hFile, lOffset, NULL, uiMode);
+	int origin = SEEK_SET;
+	switch(uiMode)
+	{
+	case FILE_BEGIN: origin = SEEK_SET; break;
+	case FILE_CURRENT: origin = SEEK_CUR; break;
+	case FILE_END: origin = SEEK_END; break;
+	default: origin = SEEK_SET; break;
+	}
+
+	fseek(this->hFile, lOffset, origin);
+	return (vlUInt)ftell(this->hFile);
 }
 
 vlBool CFileWriter::Write(vlChar cChar)
@@ -99,14 +111,13 @@ vlBool CFileWriter::Write(vlChar cChar)
 		return vlFalse;
 	}
 
-	vlULong ulBytesWritten = 0;
-
-	if(!WriteFile(this->hFile, &cChar, 1, &ulBytesWritten, NULL))
+	size_t written = fwrite(&cChar, 1, 1, this->hFile);
+	if(written != 1 && ferror(this->hFile))
 	{
-		LastError.Set("WriteFile() failed.", vlTrue);
+		LastError.Set("fwrite() failed.", vlTrue);
 	}
 
-	return ulBytesWritten == 1;
+	return written == 1;
 }
 
 vlUInt CFileWriter::Write(vlVoid *vData, vlUInt uiBytes)
@@ -116,12 +127,11 @@ vlUInt CFileWriter::Write(vlVoid *vData, vlUInt uiBytes)
 		return 0;
 	}
 
-	vlULong ulBytesWritten = 0;
-
-	if(!WriteFile(this->hFile, vData, uiBytes, &ulBytesWritten, NULL))
+	size_t written = fwrite(vData, 1, uiBytes, this->hFile);
+	if(written < uiBytes && ferror(this->hFile))
 	{
-		LastError.Set("WriteFile() failed.", vlTrue);
+		LastError.Set("fwrite() failed.", vlTrue);
 	}
 
-	return (vlUInt)ulBytesWritten;
+	return (vlUInt)written;
 }

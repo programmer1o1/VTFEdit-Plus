@@ -49,7 +49,7 @@ vlVoid CVMTSingleNode::SetValue(vlFloat fValue)
 	this->fValue = fValue;
 }
 
-const vlFloat CVMTSingleNode::GetValue() const
+vlFloat CVMTSingleNode::GetValue() const
 {
 	return this->fValue;
 }

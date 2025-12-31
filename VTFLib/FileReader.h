@@ -13,6 +13,7 @@
 #define FILEREADER_H
 
 #include "stdafx.h"
+#include <cstdio>
 #include "Reader.h"
 
 namespace VTFLib
@@ -24,7 +25,7 @@ namespace VTFLib
 			class CFileReader : public IReader
 			{
 			private:
-				HANDLE hFile;
+                FILE *hFile;
 				vlChar *cFileName;
 
 			public:

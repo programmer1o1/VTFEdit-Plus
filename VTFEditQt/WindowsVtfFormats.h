@@ -1,0 +1,41 @@
+#pragma once
+
+#include <VTFLib.h>
+
+struct WindowsVtfFormatItem {
+    const char *label;
+    VTFImageFormat format;
+};
+
+// Mirrors Windows VTFEdit's VTF options format combo (27 entries).
+// Source: VTFEdit/VTFOptions.h (cboFormat / cboAlphaFormat).
+constexpr WindowsVtfFormatItem kWindowsVtfFormats[] = {
+    {"RGBA8888", IMAGE_FORMAT_RGBA8888},
+    {"ABGR8888", IMAGE_FORMAT_ABGR8888},
+    {"RGB888", IMAGE_FORMAT_RGB888},
+    {"BGR888", IMAGE_FORMAT_BGR888},
+    {"RGB565", IMAGE_FORMAT_RGB565},
+    {"I8", IMAGE_FORMAT_I8},
+    {"IA88", IMAGE_FORMAT_IA88},
+    {"P8 (Not supported)", IMAGE_FORMAT_P8},
+    {"A8", IMAGE_FORMAT_A8},
+    {"RGB888 Bluescreen", IMAGE_FORMAT_RGB888_BLUESCREEN},
+    {"BGR888 Bluescreen", IMAGE_FORMAT_BGR888_BLUESCREEN},
+    {"ARGB8888", IMAGE_FORMAT_ARGB8888},
+    {"BGRA8888", IMAGE_FORMAT_BGRA8888},
+    {"DXT1", IMAGE_FORMAT_DXT1},
+    {"DXT3", IMAGE_FORMAT_DXT3},
+    {"DXT5", IMAGE_FORMAT_DXT5},
+    {"BGRX8888", IMAGE_FORMAT_BGRX8888},
+    {"BGR565", IMAGE_FORMAT_BGR565},
+    {"BGRX5551", IMAGE_FORMAT_BGRX5551},
+    {"BGRA4444", IMAGE_FORMAT_BGRA4444},
+    {"DXT1 With One Bit Alpha", IMAGE_FORMAT_DXT1_ONEBITALPHA},
+    {"BGRA5551", IMAGE_FORMAT_BGRA5551},
+    {"UV88", IMAGE_FORMAT_UV88},
+    {"UVWQ8888", IMAGE_FORMAT_UVWQ8888},
+    {"RGBA16161616F", IMAGE_FORMAT_RGBA16161616F},
+    {"RGBA16161616", IMAGE_FORMAT_RGBA16161616},
+    {"UVLX8888", IMAGE_FORMAT_UVLX8888},
+};
+

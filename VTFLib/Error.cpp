@@ -51,6 +51,7 @@ vlVoid CError::Set(const vlChar *cErrorMessage, vlBool bSystemError)
 	vlChar cBuffer[2048];
 	if(bSystemError)
 	{
+#ifdef _WIN32
 		LPSTR lpMessage = NULL;
 		vlUInt uiLastError = GetLastError(); 
 
@@ -64,8 +65,18 @@ vlVoid CError::Set(const vlChar *cErrorMessage, vlBool bSystemError)
 		{
 			sprintf(cBuffer, "Error:\n%s\n\nSystem Error: 0x%.8x.", cErrorMessage, uiLastError); 
 		}
-
-		
+#else
+		int uiLastError = errno;
+		const char *lpMessage = strerror(uiLastError);
+		if(lpMessage != NULL && *lpMessage != '\0')
+		{
+			sprintf(cBuffer, "Error:\n%s\n\nSystem Error: %d:\n%s", cErrorMessage, uiLastError, lpMessage);
+		}
+		else
+		{
+			sprintf(cBuffer, "Error:\n%s\n\nSystem Error: %d.", cErrorMessage, uiLastError);
+		}
+#endif
 	}
 	else
 	{

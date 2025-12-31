@@ -19,6 +19,52 @@
 
 #include "stdafx.h"
 #include "enumerations.h"
+#include "image_io.h"
+#include <dirent.h>
+#include <sys/stat.h>
+#include <fnmatch.h>
+
+#ifndef _WIN32
+static int fnmatch_case_insensitive(const char *pattern, const char *name)
+{
+#ifdef FNM_CASEFOLD
+	return fnmatch(pattern, name, FNM_CASEFOLD);
+#else
+	size_t pLen = strlen(pattern);
+	size_t nLen = strlen(name);
+
+	char *pLower = (char *)malloc(pLen + 1);
+	char *nLower = (char *)malloc(nLen + 1);
+	if(pLower == NULL || nLower == NULL)
+	{
+		free(pLower);
+		free(nLower);
+		return FNM_NOMATCH;
+	}
+
+	for(size_t i = 0; i < pLen; i++)
+		pLower[i] = (char)tolower((unsigned char)pattern[i]);
+	pLower[pLen] = '\0';
+
+	for(size_t i = 0; i < nLen; i++)
+		nLower[i] = (char)tolower((unsigned char)name[i]);
+	nLower[nLen] = '\0';
+
+	int result = fnmatch(pLower, nLower, 0);
+	free(pLower);
+	free(nLower);
+	return result;
+#endif
+}
+#endif
+
+#ifdef _WIN32
+#define PATH_SEP '\\'
+#define PATH_SEP_STR "\\"
+#else
+#define PATH_SEP '/'
+#define PATH_SEP_STR "/"
+#endif
 
 #define MAX_ITEMS	1024
 
@@ -41,7 +87,6 @@ vlBool bHelp = vlFalse;								// Display help.
 
 vlUInt uiVTFImage;									// VTF image handle.
 vlUInt uiVMTMaterial;								// VMT material handle.
-ILuint uiDevILImage;								// DevIL image handle.
 
 VTFImageFormat AlphaFormat = IMAGE_FORMAT_DXT5;		// VTF image format for alpha textures.
 VTFImageFormat NormalFormat = IMAGE_FORMAT_DXT1;	// VTF image format for non-alpha textures.
@@ -126,8 +171,10 @@ int main(int argc, char* argv[])
 
 	VTFMipmapFilter MipmapFilter;		// Temp variable for string to VTFMipmapFilter test.
 
+#ifdef _WIN32
 	WIN32_FIND_DATA FindData;
 	HANDLE Handle;
+#endif
 
 	// Check we have the right DLL version.
 	if(vlGetVersion() != VL_VERSION)
@@ -147,6 +194,8 @@ int main(int argc, char* argv[])
 		bPause = vlTrue;
 		break;
 	case 2:
+	{
+#ifdef _WIN32
 		// If only one argument assume drag and drop.
 		Handle = FindFirstFile(argv[1], &FindData);
 
@@ -168,7 +217,27 @@ int main(int argc, char* argv[])
 			FindClose(Handle);
 			break;
 		}
+#else
+		struct stat st;
+		if(stat(argv[1], &st) == 0)
+		{
+			if(S_ISDIR(st.st_mode))
+			{
+				lpFolders[uiFolderCount++] = argv[1];
+				CreateOptions.bResize = vlTrue;
+				bPause = vlTrue;
+			}
+			else
+			{
+				lpFiles[uiFileCount++] = argv[1];
+				CreateOptions.bResize = vlTrue;
+				bPause = vlTrue;
+			}
+			break;
+		}
+#endif
 		// Fall through.
+	}
 	default:
 		for(i = 1; i < argc; i++)
 		{
@@ -579,14 +648,13 @@ int main(int argc, char* argv[])
 	vlCreateMaterial(&uiVMTMaterial);
 	vlBindMaterial(uiVMTMaterial);
 
-	// Initialize DevIL.
-	ilInit();
-
-	ilEnable(IL_ORIGIN_SET);  // Filps images that are upside down (by format).
-	ilOriginFunc(IL_ORIGIN_UPPER_LEFT);
-
-	ilGenImages(1, &uiDevILImage);
-	ilBindImage(uiDevILImage);
+	// Initialize image I/O backend (DevIL or stb).
+	vlChar lpImageIOError[256];
+	if(!vtfcmdImageIOInit(lpImageIOError, sizeof(lpImageIOError)))
+	{
+		Print("Error initializing image I/O: %s\n", lpImageIOError);
+		return 1;
+	}
 
 	// Process files.
 	for(i = 0; i < (int)uiFileCount; i++)
@@ -598,17 +666,24 @@ int main(int argc, char* argv[])
 	for(i = 0; i < (int)uiFolderCount; i++)
 	{
 		// Grab the wildcard string from the folder path.
-		if((lpWildcard = strrchr(lpFolders[i], '\\')) == 0)
+		vlChar *lastSep = strrchr(lpFolders[i], PATH_SEP);
+		vlChar *altSep  = strrchr(lpFolders[i], PATH_SEP == '\\' ? '/' : '\\');
+		if(altSep != NULL && (lastSep == NULL || altSep > lastSep))
+		{
+			lastSep = altSep;
+		}
+
+		if((lpWildcard = lastSep) == 0)
 		{
 			lpWildcard = "*.*";
 		}
 		else
 		{
-			// Wildcard starts after last \ in path.  e.g. C:\input\*.bmp
+			// Wildcard starts after last separator, e.g. C:\input\*.bmp or /input/*.bmp
 			*lpWildcard = '\0';
 			lpWildcard++;
 
-			// If there is no wildcard after the last \, use *.* as defult.
+			// If there is no wildcard after the last separator, use *.* as default.
 			if(*lpWildcard == '\0')
 			{
 				lpWildcard = "*.*";
@@ -619,9 +694,7 @@ int main(int argc, char* argv[])
 	}
 
 	// Shutdown DevIL.
-	ilDeleteImages(1, &uiDevILImage);
-
-	ilShutDown();
+	vtfcmdImageIOShutdown();
 
 	// Shutdown VTFLib.
 	vlDeleteMaterial(uiVMTMaterial);
@@ -704,7 +777,7 @@ void PrintUsage(const vlChar *lpError, ...)
 	Print(" -shader <string>          (Create a material for the texture.)\n");
 	Print(" -param <string> <string>  (Add a parameter to the material.)\n");
 	Print(" -recurse                  (Process directories recursively.)\n");
-	Print(" -exportformat <string>    (Convert VTF files to the format of this extension.)\n");
+	Print(" -exportformat <string>    (Convert VTF files to this extension. stb: png/tga/bmp/jpg/hdr; DevIL: DevIL-supported.)\n");
 	Print(" -silent                   (Silent mode.)\n");
 	Print(" -pause                    (Pause when done.)\n");
 	Print(" -hdr                      (Indicate input is hdr.)\n");
@@ -774,13 +847,13 @@ void CreateOutputPath(vlChar *lpOutputFile, vlChar *lpInputFile, vlChar *lpExten
 	if(lpOutput != 0 && *lpOutput != '\0')
 	{
 		// Put the file in the lpOutput directory.
-		sprintf(lpOutputFile, "%s\\", lpOutput);
+		sprintf(lpOutputFile, "%s" PATH_SEP_STR, lpOutput);
 	}
 	else
 	{
 		// Put the file in the same directory as the input file.
 		strcpy(lpOutputFile, lpInputFile);
-		if((lpTemp = strrchr(lpOutputFile, '\\')) != 0)
+		if((lpTemp = strrchr(lpOutputFile, PATH_SEP)) != 0 || (lpTemp = strrchr(lpOutputFile, PATH_SEP == '\\' ? '/' : '\\')) != 0)
 		{
 			*(lpTemp + 1) = '\0';
 		}
@@ -794,7 +867,7 @@ void CreateOutputPath(vlChar *lpOutputFile, vlChar *lpInputFile, vlChar *lpExten
 	strcat(lpOutputFile, lpPrefix);
 
 	// Add the file name of the input file to the file name.
-	if((lpTemp = strrchr(lpInputFile, '\\')) != 0)
+	if((lpTemp = strrchr(lpInputFile, PATH_SEP)) != 0 || (lpTemp = strrchr(lpInputFile, PATH_SEP == '\\' ? '/' : '\\')) != 0)
 	{
 		strcat(lpOutputFile, lpTemp + 1);
 	}
@@ -803,7 +876,13 @@ void CreateOutputPath(vlChar *lpOutputFile, vlChar *lpInputFile, vlChar *lpExten
 		strcat(lpOutputFile, lpInputFile);
 	}
 
-	if((lpTemp = strrchr(lpOutputFile, '.')) != 0 && lpTemp > strrchr(lpOutputFile, '\\'))
+	vlChar *lastSep = strrchr(lpOutputFile, PATH_SEP);
+	if(PATH_SEP == '\\')
+	{
+		vlChar *alt = strrchr(lpOutputFile, '/');
+		if(alt != NULL && (lastSep == NULL || alt > lastSep)) lastSep = alt;
+	}
+	if((lpTemp = strrchr(lpOutputFile, '.')) != 0 && (lastSep == NULL || lpTemp > lastSep))
 	{
 		*lpTemp = '\0';
 	}
@@ -814,32 +893,6 @@ void CreateOutputPath(vlChar *lpOutputFile, vlChar *lpInputFile, vlChar *lpExten
 	// Add the extension to the file name.
 	strcat(lpOutputFile, ".");
 	strcat(lpOutputFile, lpExtension);
-}
-
-//
-// FlipImage()
-// Flip lpImageData over the horizontal axis.
-//
-void FlipImage(vlByte *lpImageData, vlUInt uiWidth, vlUInt uiHeight, vlUInt uiChannels)
-{
-	vlUInt i, j, k;
-	vlByte bTemp;
-
-	for(i = 0; i < uiWidth; i++)
-	{
-		for(j = 0; j < uiHeight / 2; j++)
-		{
-			vlByte *pOne = lpImageData + (i + j * uiWidth) * uiChannels;
-			vlByte *pTwo = lpImageData + (i + (uiHeight - j - 1) * uiWidth) * uiChannels;
-
-			for(k = 0; k < uiChannels; k++)
-			{
-				bTemp = pOne[k];
-				pOne[k] = pTwo[k];
-				pTwo[k] = bTemp;
-			}
-		}
-	}
 }
 
 //
@@ -872,37 +925,36 @@ void ProcessFile(vlChar *lpInputFile)
 	
 	if(lpTemp == 0 || stricmp(lpTemp, ".vtf") != 0)
 	{
+		VTFCmdLoadedImage LoadedImage;
+		vlChar lpImageIOError[256];
+
 		// Load input file.
-		if(!ilLoadImage(lpInputFile))
+		if(!vtfcmdLoadImageRGBA(lpInputFile, &LoadedImage, lpImageIOError, sizeof(lpImageIOError)))
 		{
-			Print(" Error loading input file.\n\n");
+			Print(" Error loading input file: %s\n\n", lpImageIOError);
 			return;
 		}
 
 		Print(" Information:\n");
 
 		// Display input file info.
-		Print("  Width: %d\n", ilGetInteger(IL_IMAGE_WIDTH));
-		Print("  Height: %d\n", ilGetInteger(IL_IMAGE_HEIGHT));
-		Print("  BPP: %d\n\n", ilGetInteger(IL_IMAGE_BYTES_PER_PIXEL));
+		Print("  Width: %u\n", LoadedImage.uiWidth);
+		Print("  Height: %u\n", LoadedImage.uiHeight);
+		Print("  BPP: %u\n\n", LoadedImage.uiChannelsInFile);
 
-		CreateOptions.ImageFormat = ilGetInteger(IL_IMAGE_BYTES_PER_PIXEL) == 4 ? AlphaFormat : NormalFormat;
+		CreateOptions.ImageFormat = LoadedImage.uiChannelsInFile == 4 ? AlphaFormat : NormalFormat;
 
 		Print(" Creating texture:\n");
 
-		// Convert input file to RGBA.
-		if(!ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE))
-		{
-			Print("  Error converting input file.\n\n");
-			return;
-		}
-
 		// Create vtf file.
-		if(!vlImageCreateSingle((vlUInt)ilGetInteger(IL_IMAGE_WIDTH), (vlUInt)ilGetInteger(IL_IMAGE_HEIGHT), ilGetData(), &CreateOptions))
+		if(!vlImageCreateSingle(LoadedImage.uiWidth, LoadedImage.uiHeight, LoadedImage.lpRGBA, &CreateOptions))
 		{
+			vtfcmdFreeLoadedImage(&LoadedImage);
 			Print("  Error creating vtf file:\n%s\n\n", vlGetLastError());
 			return;
 		}
+
+		vtfcmdFreeLoadedImage(&LoadedImage);
 
 		CreateOutputPath(lpVTFFile, lpInputFile, "vtf");
 
@@ -923,16 +975,29 @@ void ProcessFile(vlChar *lpInputFile)
 			// We need to constuct a $basetexture string, to do this we need the path
 			// of the vtf file relative to the materials folder.  If we arn't in a
 			// materials folder we can't do this.
-			if((lpTemp = stristr(lpVTFFile, "materials\\")) == 0)
+			vlChar *tBack = stristr(lpVTFFile, "materials\\");
+			vlChar *tFwd  = stristr(lpVTFFile, "materials/");
+			if(tBack == 0 || (tFwd != 0 && tFwd < tBack))
 			{
-				Print("  Error creating vmt: texture is not in a ...\\materials\\ folder.\n\n");
+				lpTemp = tFwd;
+			}
+			else
+			{
+				lpTemp = tBack;
+			}
+
+			if(lpTemp == 0)
+			{
+				Print("  Error creating vmt: texture is not in a .../materials/ folder.\n\n");
 			}
 			else
 			{
 				strcpy(lpVMTFile, lpVTFFile);
 				strcpy(strrchr(lpVMTFile, '.'), ".vmt");
 
-				strcpy(lpVMTBaseTexture, lpTemp + strlen("materials\\"));
+				// Skip past "materials/" or "materials\\"
+				lpTemp += (lpTemp[9] == '\\' || lpTemp[9] == '/') ? 10 : strlen("materials/");
+				strcpy(lpVMTBaseTexture, lpTemp);
 				*strrchr(lpVMTBaseTexture, '.') = '\0';
 				strrpl(lpVMTBaseTexture, '\\', '/');
 
@@ -1030,29 +1095,20 @@ void ProcessFile(vlChar *lpInputFile)
 			return;
 		}
 
-		// DevIL likes the image data upside down.
-		FlipImage(lpImageData, vlImageGetWidth(), vlImageGetHeight(), DestFormat == IMAGE_FORMAT_RGBA8888 ? 4 : 3);
+		CreateOutputPath(lpExportFile, lpInputFile, lpExportFormat);
 
-		// Create a new image with the converted image data in DevIL.
-		if(!ilTexImage(vlImageGetWidth(), vlImageGetHeight(), 1, DestFormat == IMAGE_FORMAT_RGBA8888 ? 4 : 3, DestFormat == IMAGE_FORMAT_RGBA8888 ? IL_RGBA : IL_RGB, IL_UNSIGNED_BYTE, lpImageData))
+		vlChar lpImageIOError[256];
+
+		// Write export file.
+		Print("  Writing %s...\n", lpExportFile);
+		if(!vtfcmdWriteImage(lpExportFile, lpImageData, vlImageGetWidth(), vlImageGetHeight(), DestFormat == IMAGE_FORMAT_RGBA8888 ? 4 : 3, lpImageIOError, sizeof(lpImageIOError)))
 		{
 			free(lpImageData);
-
-			Print("  Error creating %s file.\n\n", lpExportFormat);
+			Print(" Error creating %s file: %s\n\n", lpExportFormat, lpImageIOError);
 			return;
 		}
 
 		free(lpImageData);
-
-		CreateOutputPath(lpExportFile, lpInputFile, lpExportFormat);
-
-		// Write tga file.
-		Print("  Writing %s...\n", lpExportFile);
-		if(!ilSaveImage(lpExportFile))
-		{
-			Print(" Error creating %s file.\n\n", lpExportFormat);
-			return;
-		}
 		Print("  %s written.\n\n", lpExportFile);
 	}
 
@@ -1067,13 +1123,14 @@ void ProcessFile(vlChar *lpInputFile)
 //
 void ProcessFolder(vlChar *lpInputFolder, vlChar *lpWildcard)
 {
-	vlChar lpSearchString[512];
 	vlChar lpPath[512];
 
+	Print("Processing %s%s...\n\n", lpInputFolder, PATH_SEP_STR);
+
+#ifdef _WIN32
+	vlChar lpSearchString[512];
 	WIN32_FIND_DATA FindData;
 	HANDLE Handle;
-
-	Print("Processing %s\\...\n\n", lpInputFolder);
 
 	if(bRecursive)
 	{
@@ -1121,6 +1178,44 @@ void ProcessFolder(vlChar *lpInputFolder, vlChar *lpWildcard)
 
 		FindClose(Handle);
 	}
+#else
+	DIR *dir = opendir(lpInputFolder);
+	if(!dir)
+	{
+		Print("Unable to open %s.\n\n", lpInputFolder);
+		return;
+	}
 
-	Print("%s\\ processed.\n\n", lpInputFolder);
+	struct dirent *entry;
+	while((entry = readdir(dir)) != NULL)
+	{
+		if(stricmp(entry->d_name, ".") == 0 || stricmp(entry->d_name, "..") == 0)
+			continue;
+
+		snprintf(lpPath, sizeof(lpPath), "%s" PATH_SEP_STR "%s", lpInputFolder, entry->d_name);
+
+		struct stat st;
+		if(stat(lpPath, &st) != 0)
+			continue;
+
+		if(S_ISDIR(st.st_mode))
+		{
+			if(bRecursive)
+			{
+				ProcessFolder(lpPath, lpWildcard);
+			}
+		}
+		else
+		{
+			if(fnmatch_case_insensitive(lpWildcard, entry->d_name) == 0)
+			{
+				ProcessFile(lpPath);
+			}
+		}
+	}
+
+	closedir(dir);
+#endif
+
+	Print("%s%s processed.\n\n", lpInputFolder, PATH_SEP_STR);
 }

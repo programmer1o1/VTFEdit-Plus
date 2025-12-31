@@ -24,6 +24,16 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Bb]uild/
+build-*/
+build_*/
+cmake-build-*/
+**/CMakeFiles/
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/install_manifest.txt
+**/compile_commands.json
+**/.ninja_deps
+**/.ninja_log
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
