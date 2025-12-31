@@ -20,9 +20,12 @@
 #include "stdafx.h"
 #include "enumerations.h"
 #include "image_io.h"
+
+#ifndef _WIN32
 #include <dirent.h>
 #include <sys/stat.h>
 #include <fnmatch.h>
+#endif
 
 #ifndef _WIN32
 static int fnmatch_case_insensitive(const char *pattern, const char *name)

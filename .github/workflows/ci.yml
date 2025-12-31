@@ -24,7 +24,7 @@ jobs:
         run: >-
           cmake -S . -B build
           -DCMAKE_BUILD_TYPE=Release
-          -DVTFLIB_USE_COMPRESSONATOR=OFF
+          -DVTFLIB_USE_COMPRESSONATOR=${{ runner.os == 'Linux' && 'ON' || 'OFF' }}
           -DVTFCMD_IMAGE_BACKEND=stb
           -DBUILD_VTFEDIT_QT=OFF
 
@@ -47,7 +47,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=Release
           -DBUILD_VTFCMD=OFF
           -DBUILD_VTFEDIT_QT=ON
-          -DVTFLIB_USE_COMPRESSONATOR=OFF
+          -DVTFLIB_USE_COMPRESSONATOR=ON
 
       - name: Build
         run: cmake --build build-qt --config Release

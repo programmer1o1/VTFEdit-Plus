@@ -40,20 +40,32 @@ set_target_properties(vtflib PROPERTIES
 
 # Compressonator (optional)
 if(VTFLIB_USE_COMPRESSONATOR)
+    set(_compressonator_search_paths
+        ${PROJECT_SOURCE_DIR}/thirdparty/lib
+        /usr/local/lib
+    )
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        # Precompiled Linux static libs live under lib/linux/<arch>/.
+        list(APPEND _compressonator_search_paths
+            ${PROJECT_SOURCE_DIR}/lib/linux/${CMAKE_SYSTEM_PROCESSOR}
+            ${PROJECT_SOURCE_DIR}/lib/linux/x86_64
+        )
+    endif()
+
     find_library(COMPRESSONATOR_LIB NAMES Compressonator compressonator
-        PATHS ${PROJECT_SOURCE_DIR}/lib/linux/x86_64 ${PROJECT_SOURCE_DIR}/thirdparty/lib /usr/local/lib
+        PATHS ${_compressonator_search_paths}
     )
     if(COMPRESSONATOR_LIB)
         target_link_libraries(vtflib PRIVATE ${COMPRESSONATOR_LIB})
         # Link all CMP_Core variants (base, SSE, AVX)
         find_library(CMP_CORE_LIB NAMES CMP_Core
-            PATHS ${PROJECT_SOURCE_DIR}/lib/linux/x86_64 /usr/local/lib
+            PATHS ${_compressonator_search_paths}
         )
         find_library(CMP_CORE_SSE_LIB NAMES CMP_Core_SSE
-            PATHS ${PROJECT_SOURCE_DIR}/lib/linux/x86_64 /usr/local/lib
+            PATHS ${_compressonator_search_paths}
         )
         find_library(CMP_CORE_AVX_LIB NAMES CMP_Core_AVX
-            PATHS ${PROJECT_SOURCE_DIR}/lib/linux/x86_64 /usr/local/lib
+            PATHS ${_compressonator_search_paths}
         )
         if(CMP_CORE_LIB)
             target_link_libraries(vtflib PRIVATE ${CMP_CORE_LIB})
