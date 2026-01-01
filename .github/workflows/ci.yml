@@ -65,7 +65,7 @@ jobs:
         with:
           version: 6.8.3
           cache: true
-          arch: ${{ runner.os == 'Windows' && 'win64_msvc2022_64' || runner.os == 'macOS' && 'clang_64' || 'gcc_64' }}
+          arch: ${{ runner.os == 'Windows' && 'win64_msvc2022_64' || runner.os == 'macOS' && 'clang_64' || 'linux_gcc_64' }}
 
       - name: Install additional Linux dependencies
         if: runner.os == 'Linux'
