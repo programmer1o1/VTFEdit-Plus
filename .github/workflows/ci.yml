@@ -62,7 +62,7 @@ jobs:
 
       - name: Install Qt 6 (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y qt6-base-dev qt6-base-dev-tools qt6-base-plugins ninja-build patchelf libxcb-cursor0
+        run: sudo apt-get update && sudo apt-get install -y qt6-base-dev qt6-base-dev-tools qt6-qpa-plugins ninja-build patchelf libxcb-cursor0
 
       - name: Install Qt 6 (Windows/macOS)
         if: runner.os != 'Linux'

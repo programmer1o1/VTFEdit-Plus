@@ -40,6 +40,8 @@ set_target_properties(vtflib PROPERTIES
 
 # Compressonator (optional)
 if(VTFLIB_USE_COMPRESSONATOR)
+    set(_vtflib_has_compressonator OFF)
+    set(_vtflib_compressonator_intentionally_disabled OFF)
     set(_compressonator_search_paths
         ${PROJECT_SOURCE_DIR}/thirdparty/lib
         /usr/local/lib
@@ -53,21 +55,64 @@ if(VTFLIB_USE_COMPRESSONATOR)
     endif()
 
     if(WIN32)
-        # The bundled Windows libs are named `Compressonator_MT{d}.lib`.
-        find_library(COMPRESSONATOR_LIB_RELEASE NAMES Compressonator_MT Compressonator compressonator
-            PATHS ${_compressonator_search_paths}
-        )
-        find_library(COMPRESSONATOR_LIB_DEBUG NAMES Compressonator_MTd Compressonator compressonator
-            PATHS ${_compressonator_search_paths}
-        )
-        if(COMPRESSONATOR_LIB_RELEASE OR COMPRESSONATOR_LIB_DEBUG)
-            if(COMPRESSONATOR_LIB_RELEASE AND COMPRESSONATOR_LIB_DEBUG)
-                target_link_libraries(vtflib PRIVATE
-                    optimized ${COMPRESSONATOR_LIB_RELEASE}
-                    debug ${COMPRESSONATOR_LIB_DEBUG}
-                )
+        # The bundled Windows libs are named `Compressonator_MT{d}.lib` and are built with the static MSVC runtime (/MT).
+        # If this project is built with the dynamic runtime (/MD), linking will fail with LNK2038.
+        set(_vtflib_msvc_runtime_is_dynamic TRUE)
+        if(MSVC)
+            get_target_property(_vtflib_msvc_runtime vtflib MSVC_RUNTIME_LIBRARY)
+            if(NOT _vtflib_msvc_runtime)
+                set(_vtflib_msvc_runtime "${CMAKE_MSVC_RUNTIME_LIBRARY}")
+            endif()
+
+            # Heuristic: treat any runtime string containing "DLL" as /MD, and plain "MultiThreaded" as /MT.
+            if(NOT _vtflib_msvc_runtime)
+                set(_vtflib_msvc_runtime_is_dynamic TRUE)
+            elseif(_vtflib_msvc_runtime MATCHES "DLL")
+                set(_vtflib_msvc_runtime_is_dynamic TRUE)
             else()
-                target_link_libraries(vtflib PRIVATE ${COMPRESSONATOR_LIB_RELEASE} ${COMPRESSONATOR_LIB_DEBUG})
+                set(_vtflib_msvc_runtime_is_dynamic FALSE)
+            endif()
+        endif()
+
+        if(_vtflib_msvc_runtime_is_dynamic)
+            # Prefer a /MD-built Compressonator if one is provided by the user/toolchain.
+            find_library(COMPRESSONATOR_LIB_RELEASE NAMES Compressonator compressonator
+                PATHS ${_compressonator_search_paths}
+            )
+            find_library(COMPRESSONATOR_LIB_DEBUG NAMES Compressonatord Compressonator_d compressonatord Compressonator compressonator
+                PATHS ${_compressonator_search_paths}
+            )
+            if(COMPRESSONATOR_LIB_RELEASE OR COMPRESSONATOR_LIB_DEBUG)
+                if(COMPRESSONATOR_LIB_RELEASE AND COMPRESSONATOR_LIB_DEBUG)
+                    target_link_libraries(vtflib PRIVATE
+                        optimized ${COMPRESSONATOR_LIB_RELEASE}
+                        debug ${COMPRESSONATOR_LIB_DEBUG}
+                    )
+                else()
+                    target_link_libraries(vtflib PRIVATE ${COMPRESSONATOR_LIB_RELEASE} ${COMPRESSONATOR_LIB_DEBUG})
+                endif()
+                set(_vtflib_has_compressonator ON)
+            else()
+                message(WARNING "VTFLIB_USE_COMPRESSONATOR is ON, but no /MD-compatible Compressonator library was found (the bundled ones are /MT); disabling Compressonator to avoid linker errors.")
+                set(_vtflib_compressonator_intentionally_disabled ON)
+            endif()
+        else()
+            find_library(COMPRESSONATOR_LIB_RELEASE NAMES Compressonator_MT Compressonator compressonator
+                PATHS ${_compressonator_search_paths}
+            )
+            find_library(COMPRESSONATOR_LIB_DEBUG NAMES Compressonator_MTd Compressonator compressonator
+                PATHS ${_compressonator_search_paths}
+            )
+            if(COMPRESSONATOR_LIB_RELEASE OR COMPRESSONATOR_LIB_DEBUG)
+                if(COMPRESSONATOR_LIB_RELEASE AND COMPRESSONATOR_LIB_DEBUG)
+                    target_link_libraries(vtflib PRIVATE
+                        optimized ${COMPRESSONATOR_LIB_RELEASE}
+                        debug ${COMPRESSONATOR_LIB_DEBUG}
+                    )
+                else()
+                    target_link_libraries(vtflib PRIVATE ${COMPRESSONATOR_LIB_RELEASE} ${COMPRESSONATOR_LIB_DEBUG})
+                endif()
+                set(_vtflib_has_compressonator ON)
             endif()
         endif()
     else()
@@ -76,10 +121,11 @@ if(VTFLIB_USE_COMPRESSONATOR)
         )
         if(COMPRESSONATOR_LIB)
             target_link_libraries(vtflib PRIVATE ${COMPRESSONATOR_LIB})
+            set(_vtflib_has_compressonator ON)
         endif()
     endif()
 
-    if(COMPRESSONATOR_LIB OR COMPRESSONATOR_LIB_RELEASE OR COMPRESSONATOR_LIB_DEBUG)
+    if(_vtflib_has_compressonator)
         # Link all CMP_Core variants (base, SSE, AVX)
         find_library(CMP_CORE_LIB NAMES CMP_Core
             PATHS ${_compressonator_search_paths}
@@ -102,7 +148,9 @@ if(VTFLIB_USE_COMPRESSONATOR)
         target_compile_definitions(vtflib PRIVATE VTFLIB_HAS_COMPRESSONATOR)
         target_include_directories(vtflib PRIVATE ${PROJECT_SOURCE_DIR}/lib/include)
     else()
-        message(WARNING "Compressonator library not found; DXT compression will be disabled.")
+        if(NOT _vtflib_compressonator_intentionally_disabled)
+            message(WARNING "Compressonator library not found; DXT compression will be disabled.")
+        endif()
     endif()
 endif()
 
