@@ -1,8 +1,13 @@
-# VTFLib - A Valve VTF and VMT image format programming library.
+# QTFEdit v3.0 (Qt GUI for VTFLib)
 
-VTFLib is a LGPL open source programming library that provides a C and C++ API that, with a few simple functions, can open and save .vtf and .vmt files, providing access to all known features. The library functions independent of Steam, allowing third party applications to use the library without Steam present or running on the target system.
+QTFEdit is the primary GUI frontend for VTFLib, implemented with Qt (Qt 6/5 Widgets) and intended to be cross-platform (Linux/macOS/Windows).
 
-VTFLib includes two GPL example applications, VTFCmd and VTFEdit. VTFCmd is a C command line frontend for VTFLib that can create .vtf and .vmt files from various source formats. It is similar in functionality to Valve's vtex Source SDK utility, but offers a lot more control. VTFEdit is a C++ .NET graphical frontend for VTFLib with viewing and creation capabilities. Both VTFCmd and VTFEdit support several source image formats, including, but not limited to .bmp, .dds, .gif, .jpg, .png and .tga.
+This repository contains:
+
+- **VTFLib**: LGPL C/C++ library for reading/writing `.vtf`/`.vmt`.
+- **VTFCmd**: GPL command-line frontend for VTFLib.
+- **QTFEdit** (`VTFEdit/`): Qt GUI frontend for VTFLib.
+- **Legacy WinForms GUI** (`legacy/`): frozen Windows-only VTFEdit Reloaded + Visual Studio solutions.
 
 ## Library/Author Information
 
@@ -13,22 +18,16 @@ VTFLib includes two GPL example applications, VTFCmd and VTFEdit. VTFCmd is a C 
 
 ## Project Structure
 
-The library contains five folders:
-
-* **Bin** - Contains library and example program binaries.
-* **Lib** - Contains library C and C++ Header and Inline Files.
-* **Sln** - Contains Visual Studio solutions.
-* **VTFCmd** - Contains C example program source code.
-* **VTFEdit** - Contains C++ .NET example program source code.
-* **VTFLib** - Contains C++ library source code.
-
-The project files are for Visual Studio .NET 2003 and 2005; no .NET extensions are used except in VTFEdit. Visual Studio 6.0 project files have also been
-included.
+* `VTFLib/` - VTFLib source (library).
+* `VTFCmd/` - VTFCmd source (CLI).
+* `VTFEdit/` - QTFEdit source (Qt GUI).
+* `legacy/` - frozen WinForms GUI + Visual Studio solutions.
+* `docs/` - documentation (including the parity checklist).
 
 ## How to Build
 
-### Windows (unchanged)
-Use the existing Visual Studio 2019/2022 solutions under `sln/` as before.
+### Windows (legacy WinForms GUI)
+The legacy WinForms GUI is frozen, but still buildable on Windows via the Visual Studio solutions under `legacy/sln/`.
 
 ### Linux (new, CLI + library)
 Prerequisites: `cmake`, a C/C++ compiler (gcc/clang), and optionally AMD Compressonator (`libcompressonator`) for DXT compression. VTFCmd can use DevIL (OpenIL) if installed, or a bundled stb-based loader/writer backend.
@@ -49,7 +48,7 @@ Notes:
 - The stb backend uses `thirdparty/include/stb_image.h` and `thirdparty/include/stb_image_write.h`.
 - If you only want the library, configure with `-DBUILD_VTFCMD=OFF`.
 - If you want the DevIL backend but CMake can’t find it, you can point it at your paths with `-DIL_INCLUDE_DIR=...` and `-DIL_LIBRARY=...` (for example `/usr/include` and `/usr/lib64/libIL.so` or `/usr/lib64/libIL.so.1`).
-- The original WinForms GUI (VTFEdit/) remains Windows-only.
+- The legacy WinForms GUI is in `legacy/` and remains Windows-only.
 
 ### Linux/macOS/Windows (new, Qt GUI)
 Prerequisites: Qt 6 (or Qt 5) Widgets development packages and a C++ compiler.
@@ -60,9 +59,10 @@ cmake -S . -B build -G Ninja -DBUILD_VTFCMD=OFF -DBUILD_VTFEDIT_QT=ON
 cmake --build build --config Release
 ```
 Outputs:
-- `build/VTFEditQt/vtfeditqt` – Qt-based VTF/VMT tool (VTF view/export, image import → VTF, basic VMT editor + validation, batch convert folder).
+- `build/VTFEdit/vtfeditqt` – Qt-based VTF/VMT tool (VTF view/export, image import → VTF, basic VMT editor + validation, batch convert folder).
 
 Notes:
+- If you previously configured this repo when the Qt GUI lived under `VTFEditQt/`, delete your build directory and reconfigure.
 - Batch convert supports presets, preserves input folder structure under the output root, and can generate `.vmt` with `$basetexture` computed relative to a configurable `materials/` root.
 - Create options include common VTF header flags (e.g. normal map, clamp, filtering) via the Qt GUI.
 - Opened `.vtf` files can have header flags edited via the GUI and then saved back to disk.
@@ -72,7 +72,7 @@ Notes:
 
 ## CI
 
-GitHub Actions builds the core targets (`vtflib`, `vtfcmd`) on Ubuntu/Windows/macOS, and builds the Qt GUI (`vtfeditqt`) on Ubuntu (Qt 6).
+GitHub Actions builds the core targets (`vtflib`, `vtfcmd`) on Ubuntu/Windows/macOS, and builds the Qt GUI (`vtfeditqt`) on Ubuntu/Windows/macOS (Qt 6).
 
 ## Optional Dependencies (legacy/Windows)
 

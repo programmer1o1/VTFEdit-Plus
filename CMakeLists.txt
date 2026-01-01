@@ -10,16 +10,19 @@ if(CMAKE_GENERATOR MATCHES "Ninja")
         endif()
     endif()
 endif()
-project(VTFEditReloaded LANGUAGES C CXX)
+
+# QTFEdit (Qt) is the primary GUI going forward. The legacy WinForms GUI and
+# Visual Studio solutions live under `legacy/` and are frozen.
+project(QTFEdit VERSION 3.0.0 LANGUAGES C CXX)
 
 option(VTFLIB_USE_COMPRESSONATOR "Link against AMD Compressonator if available" ON)
 option(BUILD_VTFCMD "Build VTFCmd CLI" ON)
-option(BUILD_VTFEDIT_QT "Build cross-platform Qt GUI (VTFEditQt)" OFF)
+option(BUILD_VTFEDIT_QT "Build cross-platform Qt GUI (QTFEdit)" OFF)
 
 add_subdirectory(VTFLib)
 if(BUILD_VTFCMD)
     add_subdirectory(VTFCmd)
 endif()
 if(BUILD_VTFEDIT_QT)
-    add_subdirectory(VTFEditQt)
+    add_subdirectory(VTFEdit)
 endif()

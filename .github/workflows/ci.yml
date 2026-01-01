@@ -45,17 +45,35 @@ jobs:
             build/**/libvtflib.a
             build/**/vtflib.lib
 
-  qt-ubuntu:
-    name: Qt GUI (ubuntu)
-    runs-on: ubuntu-latest
+  qt-gui:
+    name: Qt GUI (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Qt 6
+      - name: Setup MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install Qt 6 (Linux)
+        if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y qt6-base-dev qt6-base-dev-tools ninja-build
 
-      - name: Configure
+      - name: Install Qt 6 (Windows/macOS)
+        if: runner.os != 'Linux'
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.8.3
+          cache: true
+          arch: ${{ runner.os == 'Windows' && 'win64_msvc2022_64' || 'clang_64' }}
+
+      - name: Configure (Linux)
+        if: runner.os == 'Linux'
         run: >-
           cmake -S . -B build-qt -G Ninja
           -DCMAKE_BUILD_TYPE=Release
@@ -63,13 +81,32 @@ jobs:
           -DBUILD_VTFEDIT_QT=ON
           -DVTFLIB_USE_COMPRESSONATOR=ON
 
+      - name: Configure (macOS)
+        if: runner.os == 'macOS'
+        run: >-
+          cmake -S . -B build-qt
+          -DCMAKE_BUILD_TYPE=Release
+          -DBUILD_VTFCMD=OFF
+          -DBUILD_VTFEDIT_QT=ON
+          -DVTFLIB_USE_COMPRESSONATOR=OFF
+          -DCMAKE_PREFIX_PATH="${{ env.QT_ROOT_DIR }}"
+
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        run: >-
+          cmake -S . -B build-qt -A x64
+          -DBUILD_VTFCMD=OFF
+          -DBUILD_VTFEDIT_QT=ON
+          -DVTFLIB_USE_COMPRESSONATOR=OFF
+          -DCMAKE_PREFIX_PATH="${{ env.QT_ROOT_DIR }}"
+
       - name: Build
         run: cmake --build build-qt --config Release
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: vtfeditqt-ubuntu-latest
+          name: qtfedit-${{ matrix.os }}
           if-no-files-found: error
           compression-level: 9
           path: |
@@ -90,10 +127,10 @@ jobs:
         uses: NuGet/setup-nuget@v2
 
       - name: Restore NuGet packages
-        run: nuget restore sln/vs2019/VTFLib.sln
+        run: nuget restore legacy/sln/vs2019/VTFLib.sln
 
       - name: Build VTFEdit Reloaded (WinForms)
-        run: msbuild sln/vs2019/VTFLib.sln /m /p:Configuration=Release /p:Platform=x64 /t:VTFEdit
+        run: msbuild legacy/sln/vs2019/VTFLib.sln /m /p:Configuration=Release /p:Platform=x64 /t:VTFEdit
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -102,4 +139,4 @@ jobs:
           if-no-files-found: error
           compression-level: 9
           path: |
-            sln/vs2019/Build/**
+            legacy/sln/vs2019/Build/**
