@@ -98,6 +98,7 @@ jobs:
           -DBUILD_VTFCMD=OFF
           -DBUILD_VTFEDIT_QT=ON
           -DVTFLIB_USE_COMPRESSONATOR=ON
+          -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded$<$<CONFIG:Debug>:Debug>'
           -DCMAKE_PREFIX_PATH="${{ env.QT_ROOT_DIR }}"
 
       - name: Build
