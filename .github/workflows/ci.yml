@@ -217,13 +217,15 @@ jobs:
 
       - name: Deploy (Windows)
         if: runner.os == 'Windows'
-        run: >-
-          "${{ env.QT_ROOT_DIR }}/bin/windeployqt.exe"
-          --verbose 2
-          --release
-          --no-translations
-          --compiler-runtime
-          dist/vtfeditqt.exe
+        shell: pwsh
+        run: |
+          & "${{ env.QT_ROOT_DIR }}/bin/windeployqt.exe" `
+            --verbose `
+            2 `
+            --release `
+            --no-translations `
+            --compiler-runtime `
+            dist/vtfeditqt.exe
 
       - name: Bundle extra runtime DLLs (Windows)
         if: runner.os == 'Windows'
