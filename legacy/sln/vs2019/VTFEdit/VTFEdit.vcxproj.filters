@@ -15,81 +15,81 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\VTFEdit\About.cpp">
+    <ClCompile Include="..\..\..\VTFEdit-WinForms\About.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFEdit\BatchConvert.cpp">
+    <ClCompile Include="..\..\..\VTFEdit-WinForms\BatchConvert.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFEdit\VMTCreate.cpp">
+    <ClCompile Include="..\..\..\VTFEdit-WinForms\VMTCreate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFEdit\VTFEdit.cpp">
+    <ClCompile Include="..\..\..\VTFEdit-WinForms\VTFEdit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFEdit\VTFOptions.cpp">
+    <ClCompile Include="..\..\..\VTFEdit-WinForms\VTFOptions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFEdit\VTFResources.cpp">
+    <ClCompile Include="..\..\..\VTFEdit-WinForms\VTFResources.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\VTFEdit\About.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\About.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFEdit\BatchConvert.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\BatchConvert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFEdit\DirectoryItemInfoManager.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\DirectoryItemInfoManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFEdit\resource.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFEdit\stdafx.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFEdit\Utility.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\Utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFEdit\VMTCreate.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\VMTCreate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFEdit\VMTFileUtility.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\VMTFileUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFEdit\VTFEdit.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\VTFEdit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFEdit\VTFFileUtility.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\VTFFileUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFEdit\VTFOptions.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\VTFOptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFEdit\VTFResources.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\VTFResources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\VTFEdit\app.ico">
+    <Image Include="..\..\..\VTFEdit-WinForms\app.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\..\VTFEdit\VTFEdit.rc">
+    <ResourceCompile Include="..\..\..\VTFEdit-WinForms\VTFEdit.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="..\..\..\VTFEdit\windows_default.manifest">
+    <Manifest Include="..\..\..\VTFEdit-WinForms\windows_default.manifest">
       <Filter>Source Files</Filter>
     </Manifest>
-    <Manifest Include="..\..\..\VTFEdit\windows_dpiaware.manifest">
+    <Manifest Include="..\..\..\VTFEdit-WinForms\windows_dpiaware.manifest">
       <Filter>Source Files</Filter>
     </Manifest>
-    <Manifest Include="..\..\..\VTFEdit\windows_visualstyles.manifest">
+    <Manifest Include="..\..\..\VTFEdit-WinForms\windows_visualstyles.manifest">
       <Filter>Source Files</Filter>
     </Manifest>
   </ItemGroup>

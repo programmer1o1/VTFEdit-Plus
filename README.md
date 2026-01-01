@@ -55,14 +55,21 @@ Prerequisites: Qt 6 (or Qt 5) Widgets development packages and a C++ compiler.
 
 Build steps (GUI only, no DevIL required):
 ```
-cmake -S . -B build -G Ninja -DBUILD_VTFCMD=OFF -DBUILD_VTFEDIT_QT=ON
+cmake -S . -B build -G Ninja -DBUILD_VTFCMD=OFF -DBUILD_VTFEDIT_QT=ON -DVTFLIB_USE_COMPRESSONATOR=ON
 cmake --build build --config Release
 ```
 Outputs:
-- `build/VTFEdit/vtfeditqt` – Qt-based VTF/VMT tool (VTF view/export, image import → VTF, basic VMT editor + validation, batch convert folder).
+- `build/VTFEdit/vtfeditqt` – Qt-based VTF/VMT tool (Linux/Windows).
+- `build/VTFEdit/vtfeditqt.app` – Qt-based VTF/VMT tool (macOS).
 
 Notes:
 - If you previously configured this repo when the Qt GUI lived under `VTFEditQt/`, delete your build directory and reconfigure.
+- For a portable Windows folder (fixes missing `Qt6Core.dll` / MinGW runtime DLL errors), stage an install and run `windeployqt`:
+  - `cmake --install build --config Release --prefix dist`
+  - `windeployqt --release --no-translations --compiler-runtime dist/vtfeditqt.exe`
+- For a portable macOS app bundle, stage an install and run `macdeployqt`:
+  - `cmake --install build --config Release --prefix dist`
+  - `macdeployqt dist/vtfeditqt.app -always-overwrite`
 - Batch convert supports presets, preserves input folder structure under the output root, and can generate `.vmt` with `$basetexture` computed relative to a configurable `materials/` root.
 - Create options include common VTF header flags (e.g. normal map, clamp, filtering) via the Qt GUI.
 - Opened `.vtf` files can have header flags edited via the GUI and then saved back to disk.

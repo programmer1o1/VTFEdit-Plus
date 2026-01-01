@@ -51,164 +51,164 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\VTFLib\Proc.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\Proc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\VMTFile.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\VMTFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\VMTWrapper.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\VMTWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\VTFFile.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\VTFFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\VTFLib.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\VTFLib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\VTFMathlib.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\VTFMathlib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\VTFWrapper.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\VTFWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\Error.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\Error.cpp">
       <Filter>Source Files\Diagnostics</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\VMTGroupNode.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\VMTGroupNode.cpp">
       <Filter>Source Files\Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\VMTIntegerNode.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\VMTIntegerNode.cpp">
       <Filter>Source Files\Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\VMTNode.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\VMTNode.cpp">
       <Filter>Source Files\Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\VMTSingleNode.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\VMTSingleNode.cpp">
       <Filter>Source Files\Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\VMTStringNode.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\VMTStringNode.cpp">
       <Filter>Source Files\Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\VMTValueNode.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\VMTValueNode.cpp">
       <Filter>Source Files\Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\FileReader.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\FileReader.cpp">
       <Filter>Source Files\IO\Readers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\MemoryReader.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\MemoryReader.cpp">
       <Filter>Source Files\IO\Readers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\ProcReader.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\ProcReader.cpp">
       <Filter>Source Files\IO\Readers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\FileWriter.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\FileWriter.cpp">
       <Filter>Source Files\IO\Writers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\MemoryWriter.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\MemoryWriter.cpp">
       <Filter>Source Files\IO\Writers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\ProcWriter.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\ProcWriter.cpp">
       <Filter>Source Files\IO\Writers</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFLib\Float16.cpp">
+    <ClCompile Include="..\..\..\..\VTFLib\Float16.cpp">
       <Filter>Source Files\Miscellaneous</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\VTFLib\Proc.h">
+    <ClInclude Include="..\..\..\..\VTFLib\Proc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\VMTFile.h">
+    <ClInclude Include="..\..\..\..\VTFLib\VMTFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\VMTWrapper.h">
+    <ClInclude Include="..\..\..\..\VTFLib\VMTWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\VTFFile.h">
+    <ClInclude Include="..\..\..\..\VTFLib\VTFFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\VTFFormat.h">
+    <ClInclude Include="..\..\..\..\VTFLib\VTFFormat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\VTFLib.h">
+    <ClInclude Include="..\..\..\..\VTFLib\VTFLib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\VTFMathlib.h">
+    <ClInclude Include="..\..\..\..\VTFLib\VTFMathlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\VTFWrapper.h">
+    <ClInclude Include="..\..\..\..\VTFLib\VTFWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\Float16.h">
+    <ClInclude Include="..\..\..\..\VTFLib\Float16.h">
       <Filter>Header Files\Miscellaneous</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\resource.h">
+    <ClInclude Include="..\..\..\..\VTFLib\resource.h">
       <Filter>Header Files\Miscellaneous</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\stdafx.h">
+    <ClInclude Include="..\..\..\..\VTFLib\stdafx.h">
       <Filter>Header Files\Miscellaneous</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\VTFDXTn.h">
+    <ClInclude Include="..\..\..\..\VTFLib\VTFDXTn.h">
       <Filter>Header Files\Miscellaneous</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\VMTGroupNode.h">
+    <ClInclude Include="..\..\..\..\VTFLib\VMTGroupNode.h">
       <Filter>Header Files\Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\VMTIntegerNode.h">
+    <ClInclude Include="..\..\..\..\VTFLib\VMTIntegerNode.h">
       <Filter>Header Files\Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\VMTNode.h">
+    <ClInclude Include="..\..\..\..\VTFLib\VMTNode.h">
       <Filter>Header Files\Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\VMTNodes.h">
+    <ClInclude Include="..\..\..\..\VTFLib\VMTNodes.h">
       <Filter>Header Files\Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\VMTSingleNode.h">
+    <ClInclude Include="..\..\..\..\VTFLib\VMTSingleNode.h">
       <Filter>Header Files\Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\VMTStringNode.h">
+    <ClInclude Include="..\..\..\..\VTFLib\VMTStringNode.h">
       <Filter>Header Files\Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\VMTValueNode.h">
+    <ClInclude Include="..\..\..\..\VTFLib\VMTValueNode.h">
       <Filter>Header Files\Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\FileReader.h">
+    <ClInclude Include="..\..\..\..\VTFLib\FileReader.h">
       <Filter>Header Files\IO\Readers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\MemoryReader.h">
+    <ClInclude Include="..\..\..\..\VTFLib\MemoryReader.h">
       <Filter>Header Files\IO\Readers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\ProcReader.h">
+    <ClInclude Include="..\..\..\..\VTFLib\ProcReader.h">
       <Filter>Header Files\IO\Readers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\Reader.h">
+    <ClInclude Include="..\..\..\..\VTFLib\Reader.h">
       <Filter>Header Files\IO\Readers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\Readers.h">
+    <ClInclude Include="..\..\..\..\VTFLib\Readers.h">
       <Filter>Header Files\IO\Readers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\FileWriter.h">
+    <ClInclude Include="..\..\..\..\VTFLib\FileWriter.h">
       <Filter>Header Files\IO\Writers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\MemoryWriter.h">
+    <ClInclude Include="..\..\..\..\VTFLib\MemoryWriter.h">
       <Filter>Header Files\IO\Writers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\ProcWriter.h">
+    <ClInclude Include="..\..\..\..\VTFLib\ProcWriter.h">
       <Filter>Header Files\IO\Writers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\Writer.h">
+    <ClInclude Include="..\..\..\..\VTFLib\Writer.h">
       <Filter>Header Files\IO\Writers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\Writers.h">
+    <ClInclude Include="..\..\..\..\VTFLib\Writers.h">
       <Filter>Header Files\IO\Writers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFLib\Error.h">
+    <ClInclude Include="..\..\..\..\VTFLib\Error.h">
       <Filter>Header Files\Diagnostics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\..\VTFLib\Resource.rc">
+    <ResourceCompile Include="..\..\..\..\VTFLib\Resource.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

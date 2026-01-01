@@ -66,7 +66,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsC</CompileAs>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\thirdparty\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)VTFCmd.exe</OutputFile>
@@ -74,12 +74,12 @@
       <ProgramDatabaseFile>$(OutDir)VTFCmd.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\thirdparty\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\thirdparty\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)VTFLib\$(Platform)\$(Configuration)\VTFLib.dll" "$(TargetDir)"
 copy "$(SolutionDir)VTFLib\$(Platform)\$(Configuration)\VTFLib.pdb" "$(TargetDir)"
-copy "$(SolutionDir)..\..\thirdparty\bin\DevIL.dll" "$(TargetDir)"
+copy "$(SolutionDir)..\..\..\thirdparty\bin\DevIL.dll" "$(TargetDir)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -98,7 +98,7 @@ copy "$(SolutionDir)..\..\thirdparty\bin\DevIL.dll" "$(TargetDir)"
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsC</CompileAs>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\thirdparty\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)VTFCmd.exe</OutputFile>
@@ -107,25 +107,25 @@ copy "$(SolutionDir)..\..\thirdparty\bin\DevIL.dll" "$(TargetDir)"
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\thirdparty\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\thirdparty\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)VTFLib\$(Platform)\$(Configuration)\VTFLib.dll" "$(TargetDir)"
-copy "$(SolutionDir)..\..\thirdparty\bin\DevIL.dll" "$(TargetDir)"
+copy "$(SolutionDir)..\..\..\thirdparty\bin\DevIL.dll" "$(TargetDir)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\VTFCmd\enumerations.c" />
-    <ClCompile Include="..\..\..\VTFCmd\vtfcmd.c" />
+    <ClCompile Include="..\..\..\..\VTFCmd\enumerations.c" />
+    <ClCompile Include="..\..\..\..\VTFCmd\vtfcmd.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\VTFCmd\enumerations.h" />
-    <ClInclude Include="..\..\..\VTFCmd\resource.h" />
-    <ClInclude Include="..\..\..\VTFCmd\stdafx.h" />
+    <ClInclude Include="..\..\..\..\VTFCmd\enumerations.h" />
+    <ClInclude Include="..\..\..\..\VTFCmd\resource.h" />
+    <ClInclude Include="..\..\..\..\VTFCmd\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\..\VTFCmd\VTFCmd.rc" />
+    <ResourceCompile Include="..\..\..\..\VTFCmd\VTFCmd.rc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VTFLib\VTFLib.vcxproj">

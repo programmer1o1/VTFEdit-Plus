@@ -66,7 +66,7 @@
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\thirdparty\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)VTFLib.dll</OutputFile>
@@ -75,7 +75,7 @@
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(OutDir)VTFLib.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>$(SolutionDir)..\..\thirdparty\lib\Compressonator_MTd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)..\..\..\thirdparty\lib\Compressonator_MTd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -93,7 +93,7 @@
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\thirdparty\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)VTFLib.dll</OutputFile>
@@ -103,66 +103,66 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <ImportLibrary>$(OutDir)VTFLib.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>$(SolutionDir)..\..\thirdparty\lib\Compressonator_MT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)..\..\..\thirdparty\lib\Compressonator_MT.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\VTFLib\Error.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\FileReader.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\FileWriter.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\Float16.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\MemoryReader.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\MemoryWriter.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\Proc.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\ProcReader.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\ProcWriter.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\VMTFile.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\VMTGroupNode.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\VMTIntegerNode.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\VMTNode.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\VMTSingleNode.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\VMTStringNode.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\VMTValueNode.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\VMTWrapper.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\VTFFile.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\VTFLib.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\VTFMathlib.cpp" />
-    <ClCompile Include="..\..\..\VTFLib\VTFWrapper.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\Error.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\FileReader.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\FileWriter.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\Float16.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\MemoryReader.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\MemoryWriter.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\Proc.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\ProcReader.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\ProcWriter.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\VMTFile.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\VMTGroupNode.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\VMTIntegerNode.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\VMTNode.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\VMTSingleNode.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\VMTStringNode.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\VMTValueNode.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\VMTWrapper.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\VTFFile.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\VTFLib.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\VTFMathlib.cpp" />
+    <ClCompile Include="..\..\..\..\VTFLib\VTFWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\VTFLib\Error.h" />
-    <ClInclude Include="..\..\..\VTFLib\FileReader.h" />
-    <ClInclude Include="..\..\..\VTFLib\FileWriter.h" />
-    <ClInclude Include="..\..\..\VTFLib\Float16.h" />
-    <ClInclude Include="..\..\..\VTFLib\MemoryReader.h" />
-    <ClInclude Include="..\..\..\VTFLib\MemoryWriter.h" />
-    <ClInclude Include="..\..\..\VTFLib\Proc.h" />
-    <ClInclude Include="..\..\..\VTFLib\ProcReader.h" />
-    <ClInclude Include="..\..\..\VTFLib\ProcWriter.h" />
-    <ClInclude Include="..\..\..\VTFLib\Reader.h" />
-    <ClInclude Include="..\..\..\VTFLib\Readers.h" />
-    <ClInclude Include="..\..\..\VTFLib\resource.h" />
-    <ClInclude Include="..\..\..\VTFLib\stdafx.h" />
-    <ClInclude Include="..\..\..\VTFLib\VMTFile.h" />
-    <ClInclude Include="..\..\..\VTFLib\VMTGroupNode.h" />
-    <ClInclude Include="..\..\..\VTFLib\VMTIntegerNode.h" />
-    <ClInclude Include="..\..\..\VTFLib\VMTNode.h" />
-    <ClInclude Include="..\..\..\VTFLib\VMTNodes.h" />
-    <ClInclude Include="..\..\..\VTFLib\VMTSingleNode.h" />
-    <ClInclude Include="..\..\..\VTFLib\VMTStringNode.h" />
-    <ClInclude Include="..\..\..\VTFLib\VMTValueNode.h" />
-    <ClInclude Include="..\..\..\VTFLib\VMTWrapper.h" />
-    <ClInclude Include="..\..\..\VTFLib\VTFDXTn.h" />
-    <ClInclude Include="..\..\..\VTFLib\VTFFile.h" />
-    <ClInclude Include="..\..\..\VTFLib\VTFFormat.h" />
-    <ClInclude Include="..\..\..\VTFLib\VTFLib.h" />
-    <ClInclude Include="..\..\..\VTFLib\VTFMathlib.h" />
-    <ClInclude Include="..\..\..\VTFLib\VTFWrapper.h" />
-    <ClInclude Include="..\..\..\VTFLib\Writer.h" />
-    <ClInclude Include="..\..\..\VTFLib\Writers.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\Error.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\FileReader.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\FileWriter.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\Float16.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\MemoryReader.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\MemoryWriter.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\Proc.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\ProcReader.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\ProcWriter.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\Reader.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\Readers.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\resource.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\stdafx.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\VMTFile.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\VMTGroupNode.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\VMTIntegerNode.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\VMTNode.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\VMTNodes.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\VMTSingleNode.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\VMTStringNode.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\VMTValueNode.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\VMTWrapper.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\VTFDXTn.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\VTFFile.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\VTFFormat.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\VTFLib.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\VTFMathlib.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\VTFWrapper.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\Writer.h" />
+    <ClInclude Include="..\..\..\..\VTFLib\Writers.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\..\VTFLib\Resource.rc" />
+    <ResourceCompile Include="..\..\..\..\VTFLib\Resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

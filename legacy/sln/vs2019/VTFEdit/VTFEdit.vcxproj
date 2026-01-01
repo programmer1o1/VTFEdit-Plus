@@ -71,7 +71,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\thirdparty\include</AdditionalIncludeDirectories>
       <CompileAsManaged>true</CompileAsManaged>
     </ClCompile>
     <Link>
@@ -80,13 +80,13 @@
       <AssemblyDebug>true</AssemblyDebug>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\thirdparty\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\thirdparty\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)VTFLib\$(Platform)\$(Configuration)\VTFLib.dll" "$(TargetDir)"
 copy "$(SolutionDir)VTFLib\$(Platform)\$(Configuration)\VTFLib.pdb" "$(TargetDir)"
-copy "$(SolutionDir)..\..\thirdparty\bin\DevIL.dll" "$(TargetDir)"
-copy "$(SolutionDir)..\..\thirdparty\bin\HLLib.dll" "$(TargetDir)"
+copy "$(SolutionDir)..\..\..\thirdparty\bin\DevIL.dll" "$(TargetDir)"
+copy "$(SolutionDir)..\..\..\thirdparty\bin\HLLib.dll" "$(TargetDir)"
 
 </Command>
     </PostBuildEvent>
@@ -110,7 +110,7 @@ copy "$(SolutionDir)..\..\thirdparty\bin\HLLib.dll" "$(TargetDir)"
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\thirdparty\include</AdditionalIncludeDirectories>
       <CompileAsManaged>true</CompileAsManaged>
     </ClCompile>
     <Link>
@@ -118,11 +118,11 @@ copy "$(SolutionDir)..\..\thirdparty\bin\HLLib.dll" "$(TargetDir)"
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\thirdparty\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\thirdparty\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)VTFLib\$(Platform)\$(Configuration)\VTFLib.dll" "$(TargetDir)"
-copy "$(SolutionDir)..\..\thirdparty\bin\DevIL.dll" "$(TargetDir)"
+copy "$(SolutionDir)..\..\..\thirdparty\bin\DevIL.dll" "$(TargetDir)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -159,81 +159,81 @@ copy "$(SolutionDir)..\..\thirdparty\bin\DevIL.dll" "$(TargetDir)"
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\VTFEdit\About.cpp" />
-    <ClCompile Include="..\..\..\VTFEdit\BatchConvert.cpp" />
-    <ClCompile Include="..\..\..\VTFEdit\VMTCreate.cpp" />
-    <ClCompile Include="..\..\..\VTFEdit\VTFEdit.cpp" />
-    <ClCompile Include="..\..\..\VTFEdit\VTFOptions.cpp" />
-    <ClCompile Include="..\..\..\VTFEdit\VTFResources.cpp" />
-    <!--<ClCompile Include="..\..\..\VTFEdit\WADConvert.cpp" /> -->
+    <ClCompile Include="..\..\..\VTFEdit-WinForms\About.cpp" />
+    <ClCompile Include="..\..\..\VTFEdit-WinForms\BatchConvert.cpp" />
+    <ClCompile Include="..\..\..\VTFEdit-WinForms\VMTCreate.cpp" />
+    <ClCompile Include="..\..\..\VTFEdit-WinForms\VTFEdit.cpp" />
+    <ClCompile Include="..\..\..\VTFEdit-WinForms\VTFOptions.cpp" />
+    <ClCompile Include="..\..\..\VTFEdit-WinForms\VTFResources.cpp" />
+    <!--<ClCompile Include="..\..\..\VTFEdit-WinForms\WADConvert.cpp" /> -->
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\VTFEdit\About.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\About.h">
       <FileType>CppForm</FileType>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFEdit\BatchConvert.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\BatchConvert.h">
       <FileType>CppForm</FileType>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFEdit\DirectoryItemInfoManager.h" />
-    <ClInclude Include="..\..\..\VTFEdit\resource.h" />
-    <ClInclude Include="..\..\..\VTFEdit\stdafx.h" />
-    <ClInclude Include="..\..\..\VTFEdit\Utility.h" />
-    <ClInclude Include="..\..\..\VTFEdit\VMTCreate.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\DirectoryItemInfoManager.h" />
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\resource.h" />
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\stdafx.h" />
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\Utility.h" />
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\VMTCreate.h">
       <FileType>CppForm</FileType>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFEdit\VMTFileUtility.h" />
-    <ClInclude Include="..\..\..\VTFEdit\VTFEdit.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\VMTFileUtility.h" />
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\VTFEdit.h">
       <FileType>CppForm</FileType>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFEdit\VTFFileUtility.h" />
-    <ClInclude Include="..\..\..\VTFEdit\VTFOptions.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\VTFFileUtility.h" />
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\VTFOptions.h">
       <FileType>CppForm</FileType>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFEdit\VTFResources.h">
+    <ClInclude Include="..\..\..\VTFEdit-WinForms\VTFResources.h">
       <FileType>CppForm</FileType>
     </ClInclude>
-    <!-- <ClInclude Include="..\..\..\VTFEdit\WADConvert.h">
+    <!-- <ClInclude Include="..\..\..\VTFEdit-WinForms\WADConvert.h">
       <FileType>CppForm</FileType>
     </ClInclude> -->
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\VTFEdit\app.ico" />
+    <Image Include="..\..\..\VTFEdit-WinForms\app.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\..\VTFEdit\VTFEdit.rc" />
+    <ResourceCompile Include="..\..\..\VTFEdit-WinForms\VTFEdit.rc" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="..\..\..\VTFEdit\About.resX">
-      <DependentUpon>..\..\..\VTFEdit\About.h</DependentUpon>
+    <EmbeddedResource Include="..\..\..\VTFEdit-WinForms\About.resX">
+      <DependentUpon>..\..\..\VTFEdit-WinForms\About.h</DependentUpon>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VTFEdit.CAbout.resources</LogicalName>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VTFEdit.CAbout.resources</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\..\VTFEdit\BatchConvert.resX">
-      <DependentUpon>..\..\..\VTFEdit\BatchConvert.h</DependentUpon>
+    <EmbeddedResource Include="..\..\..\VTFEdit-WinForms\BatchConvert.resX">
+      <DependentUpon>..\..\..\VTFEdit-WinForms\BatchConvert.h</DependentUpon>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VTFEdit.CBatchConvert.resources</LogicalName>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VTFEdit.CBatchConvert.resources</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\..\VTFEdit\VMTCreate.resX">
-      <DependentUpon>..\..\..\VTFEdit\VMTCreate.h</DependentUpon>
+    <EmbeddedResource Include="..\..\..\VTFEdit-WinForms\VMTCreate.resX">
+      <DependentUpon>..\..\..\VTFEdit-WinForms\VMTCreate.h</DependentUpon>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VTFEdit.CVMTCreate.resources</LogicalName>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VTFEdit.CVMTCreate.resources</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\..\VTFEdit\VTFEdit.resX">
-      <DependentUpon>..\..\..\VTFEdit\VTFEdit.h</DependentUpon>
+    <EmbeddedResource Include="..\..\..\VTFEdit-WinForms\VTFEdit.resX">
+      <DependentUpon>..\..\..\VTFEdit-WinForms\VTFEdit.h</DependentUpon>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VTFEdit.CVTFEdit.resources</LogicalName>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VTFEdit.CVTFEdit.resources</LogicalName>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\..\VTFEdit\VTFOptions.resX">
-      <DependentUpon>..\..\..\VTFEdit\VTFOptions.h</DependentUpon>
+    <EmbeddedResource Include="..\..\..\VTFEdit-WinForms\VTFOptions.resx">
+      <DependentUpon>..\..\..\VTFEdit-WinForms\VTFOptions.h</DependentUpon>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VTFEdit.CVTFOptions.resources</LogicalName>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VTFEdit.CVTFOptions.resources</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\..\VTFEdit\VTFResources.resx">
-      <DependentUpon>..\..\..\VTFEdit\VTFResources.h</DependentUpon>
+    <EmbeddedResource Include="..\..\..\VTFEdit-WinForms\VTFResources.resx">
+      <DependentUpon>..\..\..\VTFEdit-WinForms\VTFResources.h</DependentUpon>
     </EmbeddedResource>
-    <!-- <EmbeddedResource Include="..\..\..\VTFEdit\WADConvert.resX">
-      <DependentUpon>..\..\..\VTFEdit\WADConvert.h</DependentUpon>
+    <!-- <EmbeddedResource Include="..\..\..\VTFEdit-WinForms\WADConvert.resX">
+      <DependentUpon>..\..\..\VTFEdit-WinForms\WADConvert.h</DependentUpon>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VTFEdit.CWADConvert.resources</LogicalName>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VTFEdit.CWADConvert.resources</LogicalName>
     </EmbeddedResource> -->
@@ -245,9 +245,9 @@ copy "$(SolutionDir)..\..\thirdparty\bin\DevIL.dll" "$(TargetDir)"
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="..\..\..\VTFEdit\windows_default.manifest" />
-    <Manifest Include="..\..\..\VTFEdit\windows_dpiaware.manifest" />
-    <Manifest Include="..\..\..\VTFEdit\windows_visualstyles.manifest" />
+    <Manifest Include="..\..\..\VTFEdit-WinForms\windows_default.manifest" />
+    <Manifest Include="..\..\..\VTFEdit-WinForms\windows_dpiaware.manifest" />
+    <Manifest Include="..\..\..\VTFEdit-WinForms\windows_visualstyles.manifest" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

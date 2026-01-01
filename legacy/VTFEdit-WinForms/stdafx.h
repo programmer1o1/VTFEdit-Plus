@@ -34,7 +34,7 @@
 #include <tchar.h>
 #include <richedit.h>
 
-#include "..\lib\VTFLib.h"
+#include "..\..\lib\VTFLib.h"
 #ifdef _DEBUG
 #	ifdef _WIN64
 #		pragma comment(lib, "../VTFLib/x64/Debug/VTFLib.lib")
@@ -50,7 +50,7 @@
 #endif
 
  // Re-enable if Wad conversion is fixed as HLLib is only used for that purpose in this program.
- //#include "..\lib\HLLib.h"
+ //#include "..\..\lib\HLLib.h"
 //#ifdef _WIN64
 //#	pragma comment(lib, "..\\..\\..\\lib\\x64\\HLLib.lib")
 //#else

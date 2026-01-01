@@ -17,6 +17,7 @@ if(NOT VTFEDITQT_QT_MAJOR)
 endif()
 
 add_executable(vtfeditqt
+    MACOSX_BUNDLE
     main.cpp
     BatchConvertDialog.h
     BatchConvertDialog.cpp
@@ -66,3 +67,8 @@ if(MSVC)
 else()
     target_compile_options(vtfeditqt PRIVATE -Wall -Wextra -Wpedantic)
 endif()
+
+install(TARGETS vtfeditqt
+    RUNTIME DESTINATION .
+    BUNDLE DESTINATION .
+)

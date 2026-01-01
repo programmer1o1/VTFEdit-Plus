@@ -62,7 +62,7 @@ jobs:
 
       - name: Install Qt 6 (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y qt6-base-dev qt6-base-dev-tools ninja-build
+        run: sudo apt-get update && sudo apt-get install -y qt6-base-dev qt6-base-dev-tools qt6-base-plugins ninja-build patchelf libxcb-cursor0
 
       - name: Install Qt 6 (Windows/macOS)
         if: runner.os != 'Linux'
@@ -88,7 +88,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=Release
           -DBUILD_VTFCMD=OFF
           -DBUILD_VTFEDIT_QT=ON
-          -DVTFLIB_USE_COMPRESSONATOR=OFF
+          -DVTFLIB_USE_COMPRESSONATOR=ON
           -DCMAKE_PREFIX_PATH="${{ env.QT_ROOT_DIR }}"
 
       - name: Configure (Windows)
@@ -97,11 +97,227 @@ jobs:
           cmake -S . -B build-qt -A x64
           -DBUILD_VTFCMD=OFF
           -DBUILD_VTFEDIT_QT=ON
-          -DVTFLIB_USE_COMPRESSONATOR=OFF
+          -DVTFLIB_USE_COMPRESSONATOR=ON
           -DCMAKE_PREFIX_PATH="${{ env.QT_ROOT_DIR }}"
 
       - name: Build
         run: cmake --build build-qt --config Release
+
+      - name: Install (stage)
+        run: cmake --install build-qt --config Release --prefix dist
+
+      - name: Bundle runtime dependencies (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euxo pipefail
+
+          test -f dist/vtfeditqt
+
+          ldd_output="$(ldd dist/vtfeditqt 2>&1 || true)"
+          echo "$ldd_output"
+          if echo "$ldd_output" | grep -qE 'not a dynamic executable|statically linked'; then
+            echo "dist/vtfeditqt is not dynamically linked; skipping Linux dependency bundling."
+            exit 0
+          fi
+          if echo "$ldd_output" | grep -q 'not found'; then
+            echo "dist/vtfeditqt has missing runtime dependencies." >&2
+            exit 1
+          fi
+
+          mkdir -p dist/lib dist/plugins
+
+          # Tell Qt to load plugins from our bundled folder.
+          cat > dist/qt.conf <<'EOF'
+          [Paths]
+          Plugins=plugins
+          EOF
+
+          # Resolve Qt install paths.
+          if command -v qtpaths6 >/dev/null 2>&1; then
+            QT_PLUGINS_DIR="$(qtpaths6 --query QT_INSTALL_PLUGINS)"
+          elif command -v qtpaths >/dev/null 2>&1; then
+            QT_PLUGINS_DIR="$(qtpaths --query QT_INSTALL_PLUGINS)"
+          elif command -v qmake6 >/dev/null 2>&1; then
+            QT_PLUGINS_DIR="$(qmake6 -query QT_INSTALL_PLUGINS)"
+          elif command -v qmake >/dev/null 2>&1; then
+            QT_PLUGINS_DIR="$(qmake -query QT_INSTALL_PLUGINS)"
+          else
+            echo "Qt tools not found (qtpaths/qmake)." >&2
+            exit 1
+          fi
+
+          echo "QT_PLUGINS_DIR=$QT_PLUGINS_DIR"
+
+          # Copy the commonly-required plugin categories for a Qt Widgets app.
+          for dir in platforms imageformats styles iconengines xcbglintegrations platformthemes; do
+            if [ -d "$QT_PLUGINS_DIR/$dir" ]; then
+              mkdir -p "dist/plugins/$dir"
+              cp -aL "$QT_PLUGINS_DIR/$dir/." "dist/plugins/$dir/"
+            fi
+          done
+
+          # Copy shared-library dependencies into dist/lib (excluding glibc/loader).
+          is_excluded_linux_lib() {
+            case "$1" in
+              *linux-vdso.so.*) return 0 ;;
+              */ld-linux*.so.*|*/ld-*.so.*) return 0 ;;
+              */libc.so.*|*/libm.so.*|*/libpthread.so.*|*/libdl.so.*|*/librt.so.*) return 0 ;;
+              *) return 1 ;;
+            esac
+          }
+
+          copy_one_linux_lib() {
+            local dep="$1"
+            if is_excluded_linux_lib "$dep"; then
+              return 0
+            fi
+            if [ ! -f "$dep" ]; then
+              return 0
+            fi
+            cp -nL "$dep" dist/lib/ || true
+          }
+
+          collect_linux_deps() {
+            ldd "$1" | awk '
+              /=>/ { print $(NF-1) }
+              /^[[:space:]]*\// { print $1 }
+              /not found/ { exit 2 }
+            ' | while read -r dep; do
+              [ -n "$dep" ] || continue
+              copy_one_linux_lib "$dep"
+            done
+          }
+
+          # Initial pass: app + plugins.
+          collect_linux_deps dist/vtfeditqt
+          find dist/plugins -type f -name '*.so*' -print0 | while IFS= read -r -d '' plugin; do
+            collect_linux_deps "$plugin"
+          done
+
+          # Close over deps we just copied (a few rounds to pull in transitive deps).
+          for _round in 1 2 3; do
+            find dist/lib -type f -name '*.so*' -print0 | while IFS= read -r -d '' lib; do
+              collect_linux_deps "$lib"
+            done
+          done
+
+          # Prefer bundled libs at runtime.
+          patchelf --set-rpath '$ORIGIN/lib' dist/vtfeditqt
+          find dist/lib -type f -name '*.so*' -print0 | while IFS= read -r -d '' lib; do
+            patchelf --set-rpath '$ORIGIN' "$lib" || true
+          done
+          find dist/plugins -type f -name '*.so*' -print0 | while IFS= read -r -d '' plugin; do
+            patchelf --set-rpath '$ORIGIN/../../lib' "$plugin" || true
+          done
+
+          # Sanity-check: ensure we actually bundled Qt.
+          test -f dist/lib/libQt6Core.so.6
+          test -d dist/plugins/platforms
+
+      - name: Deploy (Windows)
+        if: runner.os == 'Windows'
+        run: >-
+          "${{ env.QT_ROOT_DIR }}/bin/windeployqt.exe"
+          --verbose 2
+          --release
+          --no-translations
+          --compiler-runtime
+          dist/vtfeditqt.exe
+
+      - name: Bundle extra runtime DLLs (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          $qtBin = Join-Path $env:QT_ROOT_DIR "bin"
+          $extraDlls = @(
+            "libgcc_s_seh-1.dll",
+            "libgcc_s_dw2-1.dll",
+            "libstdc++-6.dll",
+            "libwinpthread-1.dll"
+          )
+          foreach ($dll in $extraDlls) {
+            $src = Join-Path $qtBin $dll
+            if (Test-Path $src) {
+              Copy-Item -Force $src dist\
+            }
+          }
+
+      - name: Deploy (macOS)
+        if: runner.os == 'macOS'
+        run: >-
+          "${{ env.QT_ROOT_DIR }}/bin/macdeployqt"
+          dist/vtfeditqt.app
+          -always-overwrite
+          -verbose=2
+
+      - name: Add README (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          @"
+          QTFEdit (Qt GUI) - CI Artifact
+
+          Run:
+            vtfeditqt.exe
+
+          Notes:
+          - This folder is staged with CMake and deployed via windeployqt.
+          - If you still see a missing DLL error, confirm all files extracted (including subfolders like 'platforms' and 'imageformats').
+          "@ | Out-File -FilePath dist\README.txt -Encoding utf8
+
+      - name: Add README (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > dist/README.txt <<'EOF'
+          QTFEdit (Qt GUI) - CI Artifact
+
+          Linux:
+            ./vtfeditqt
+            If it fails to start due to missing libraries, ensure you extracted the full folder (including ./lib and ./plugins).
+
+          macOS:
+            Open vtfeditqt.app
+            If macOS blocks it as "damaged" or "untrusted", try:
+              xattr -dr com.apple.quarantine vtfeditqt.app
+          EOF
+
+      - name: Verify bundle (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          Get-ChildItem -Recurse dist | Select-Object FullName, Length
+          if (-not (Test-Path dist\vtfeditqt.exe)) { throw "Missing dist\\vtfeditqt.exe" }
+          if (-not (Test-Path dist\Qt6Core.dll)) { throw "Missing dist\\Qt6Core.dll (windeployqt output)" }
+          if (-not (Test-Path dist\platforms\qwindows.dll)) { throw "Missing dist\\platforms\\qwindows.dll (Qt platform plugin)" }
+
+      - name: Verify bundle (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -euxo pipefail
+          ls -R dist
+          test -d dist/vtfeditqt.app/Contents/Frameworks
+          otool -L dist/vtfeditqt.app/Contents/MacOS/vtfeditqt
+
+      - name: Verify bundle (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euxo pipefail
+          ls -R dist
+          test -f dist/vtfeditqt
+          ldd_output="$(ldd dist/vtfeditqt 2>&1 || true)"
+          echo "$ldd_output"
+          if echo "$ldd_output" | grep -q 'not found'; then
+            echo "dist/vtfeditqt has missing runtime dependencies." >&2
+            exit 1
+          fi
+          if ! echo "$ldd_output" | grep -qE 'not a dynamic executable|statically linked'; then
+            test -f dist/lib/libQt6Core.so.6
+            test -d dist/plugins/platforms
+            patchelf --print-rpath dist/vtfeditqt
+            ldd dist/vtfeditqt
+          fi
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -110,8 +326,7 @@ jobs:
           if-no-files-found: error
           compression-level: 9
           path: |
-            build-qt/**/vtfeditqt
-            build-qt/**/vtfeditqt.exe
+            dist
 
   winforms-windows:
     name: WinForms GUI (windows)

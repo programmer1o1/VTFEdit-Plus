@@ -15,26 +15,26 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\VTFCmd\enumerations.c">
+    <ClCompile Include="..\..\..\..\VTFCmd\enumerations.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VTFCmd\vtfcmd.c">
+    <ClCompile Include="..\..\..\..\VTFCmd\vtfcmd.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\VTFCmd\enumerations.h">
+    <ClInclude Include="..\..\..\..\VTFCmd\enumerations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFCmd\resource.h">
+    <ClInclude Include="..\..\..\..\VTFCmd\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VTFCmd\stdafx.h">
+    <ClInclude Include="..\..\..\..\VTFCmd\stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\..\VTFCmd\VTFCmd.rc">
+    <ResourceCompile Include="..\..\..\..\VTFCmd\VTFCmd.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
